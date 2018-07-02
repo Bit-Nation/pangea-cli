@@ -1,0 +1,22 @@
+{
+  "name": "pangea-cli",
+  "version": "0.0.1",
+  "description": "Pangea utils",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bit-Nation/pangea-cli.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Bit-Nation/pangea-cli/issues"
+  },
+  "homepage": "https://github.com/Bit-Nation/pangea-cli#readme",
+  "dependencies": {
+    "commander": "^2.16.0"
+  }
+}
