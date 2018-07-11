@@ -3,9 +3,8 @@
 const fs = require('fs');
 const program = require('commander');
 const { prompt } = require('inquirer');
-const { saveKey, changePassword } = require('./app');
+const { saveNewKey, changePassword } = require('./app');
 const { validatePassword } = require('./src/general');
-const { validateName } = require('./src/utils/validate');
 
 const generateNewSigningKey = [
   {
@@ -13,7 +12,6 @@ const generateNewSigningKey = [
     name: 'path',
     message: 'Enter key name ...',
     default: `${__dirname}/SIGNING_KEY`,
-    validate: validateName,
   },
   {
     type: 'password',
@@ -64,9 +62,10 @@ program
     prompt(generateNewSigningKey).then((answers) => {
       const answersPath = answers.path.trim();
       let dir = answersPath;
-      if (!fs.existsSync(answersPath)) dir = `${__dirname}/${answersPath}`;
+      if (!fs.existsSync(answersPath) && answersPath !== `${__dirname}/SIGNING_KEY`) dir = `${__dirname}/${answersPath}`;
+      console.log(dir);
       if (answers.password === answers.repassword) {
-        saveKey(dir, answers.password);
+        saveNewKey(dir, answers.password);
       } else console.log('Password do not match. Try again.');
     });
   });

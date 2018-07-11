@@ -25,8 +25,8 @@ chmod u+x command.js
 
 ## Usage
 
-##dappkey sk:new
-##dappkey sk:pw
+- dappkey sk:new
+- dappkey sk:pw
 
 ## API
 
