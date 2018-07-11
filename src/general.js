@@ -83,7 +83,7 @@ const validatePassword = async (filepath, password) => {
   global.signingKey.name = jsonData.name;
   global.signingKey.version = jsonData.version;
   if (converByteToHex(keyPair.publicKey) !== publickeyHex) {
-    console.log('\nWrong password ...');
+    console.log('\nPassword Incorrect...');
     return false;
   }
   return true;
