@@ -19,13 +19,14 @@ TODO: Put more badges here.
 
 ## Install
 
-```
-```
+yarn link
+#Fix 'command not found'
+chmod u+x command.js
 
 ## Usage
 
-```
-```
+##dappkey sk:new
+##dappkey sk:pw
 
 ## API
 
