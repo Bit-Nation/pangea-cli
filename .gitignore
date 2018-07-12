@@ -2,8 +2,9 @@
 #
 .DS_Store
 
-#test
+
 coverage/
+node_modules/
 
 # Xcode
 #
