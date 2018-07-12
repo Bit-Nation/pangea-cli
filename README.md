@@ -19,7 +19,7 @@ TODO: Put more badges here.
 
 ## Install
 
-yarn link
+npm link
 #Fix 'command not found'
 chmod u+x command.js
 

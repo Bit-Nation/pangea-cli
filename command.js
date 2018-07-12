@@ -79,7 +79,7 @@ program
       if (answers.renewpassword !== answers.newpassword) {
         console.log('Sorry! Wrong pass');
       } else {
-        changePassword(answers.path, answers.newpassword);
+        changePassword(answers.path, answers.oldpassword, answers.newpassword);
         console.log('Change password success');
       }
     });

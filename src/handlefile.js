@@ -30,8 +30,8 @@ const saveSignkey = (filepath, data, name, version) => {
   let objkey = {};
   if (name) objkey.name = name;
   else objkey.name = getNameFromPath(filepath);
-  objkey.created_at = ts;
   objkey = { ...objkey, ...data };
+  objkey.created_at = ts;
   if (version) objkey.version = getNextVersionKey(version);
   else objkey.version = '0.1';
   try {

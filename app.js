@@ -1,8 +1,8 @@
-require('./src/global');
 const {
   generateRawKey,
   generateSignKey,
   generateSignKeyWithOtherPass,
+  generateOriginKeyFromPassword,
 } = require('./src/general');
 const {
   saveSignkey,
@@ -15,10 +15,11 @@ const saveNewKey = async (filepath, password) => {
   saveSignkey(filepath, signingKey);
 };
 
-const changePassword = async (filepath, password) => {
-  const newsigningkey = await generateSignKeyWithOtherPass(password);
-  const namekey = global.signingKey.name;
-  const versionkey = global.signingKey.version;
+const changePassword = async (filepath, oldpassword, newpassword) => {
+  const originKey = await generateOriginKeyFromPassword(filepath, oldpassword);
+  const newsigningkey = await generateSignKeyWithOtherPass(newpassword, { publicKey: originKey.publicKey, secretKey: originKey.secretKey });
+  const namekey = originKey.name;
+  const versionkey = originKey.version;
   saveSignkey(`${getDirectoryFromPath(filepath)}/${namekey}`, newsigningkey, namekey, versionkey);
 };
 
