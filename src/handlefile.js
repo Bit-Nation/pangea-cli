@@ -1,5 +1,7 @@
 const fs = require('fs');
-
+/**
+ * @param  {string} path
+ */
 const getNameFromPath = (path) => {
   return path.split('/').slice(-1)[0];
 };
@@ -28,12 +30,18 @@ const getNextVersionKey = (version) => {
 const saveSignkey = (filepath, data, name, version) => {
   const ts = Math.round((new Date()).getTime() / 1000);
   let objkey = {};
-  if (name) objkey.name = name;
-  else objkey.name = getNameFromPath(filepath);
+  if (name) {
+    objkey.name = name;
+  } else {
+    objkey.name = getNameFromPath(filepath);
+  }
   objkey = { ...objkey, ...data };
   objkey.created_at = ts;
-  if (version) objkey.version = getNextVersionKey(version);
-  else objkey.version = '0.1';
+  if (version) {
+    objkey.version = getNextVersionKey(version);
+  } else {
+    objkey.version = '0.1';
+  }
   try {
     fs.writeFileSync(`${filepath}-${ts}.sk.json`, JSON.stringify(objkey), 'utf-8');
     console.log(`Success! Signing key save to ${filepath}-${ts}.sk.json`);

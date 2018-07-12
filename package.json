@@ -15,9 +15,11 @@
     "commander": "^2.16.0",
     "inquirer": "^6.0.0",
     "scrypt-async": "^2.0.0",
+    "secure-random": "^1.1.1",
     "tweetnacl": "^1.0.0"
   },
   "devDependencies": {
+    "babel-eslint": "^8.2.6",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "13.0.0",
     "eslint-plugin-import": "^2.12.0",

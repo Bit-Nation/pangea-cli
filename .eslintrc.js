@@ -1,4 +1,10 @@
 module.exports = {
+    parser: "babel-eslint",
+    parserOptions: {
+      "sourceType": "module",
+      "allowImportExportEverywhere": false,
+      "codeFrame": false
+    },
     extends: [
       'airbnb-base',
       'plugin:jest/recommended',
@@ -26,6 +32,7 @@ module.exports = {
       'arrow-body-style': 0,
       'no-console': 'off',
       'prefer-const': 0,
-      "no-useless-escape": 0
+      "no-useless-escape": 0,
+      "strict": 0
     },
   };

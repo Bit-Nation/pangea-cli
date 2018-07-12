@@ -1,4 +1,5 @@
 const {
+  generateRandomSalt,
   generateEd25519Key,
   generateRawKey,
   generateKeyPair,
@@ -10,18 +11,19 @@ const {
 const { getNextVersionKey } = require('../../src/handlefile');
 
 const randomEd25519Key = generateEd25519Key();
+const randomSalt = convertByteToHex(generateRandomSalt());
 const defaultPassword = 'pangea';
 const primaryPassword = 'pangea1';
 
 describe('key', () => {
   test('validate keypair', async () => {
-    const rawkey = await generateRawKey(defaultPassword, randomEd25519Key);
-    const pairkey = await generateKeyPair(defaultPassword, rawkey.cipherSecretKey);
+    const rawkey = await generateRawKey(defaultPassword, randomEd25519Key, randomSalt);
+    const pairkey = await generateKeyPair(defaultPassword, rawkey.cipherSecretKey, randomSalt);
     expect(rawkey.publicKey).toEqual(convertByteToHex(pairkey.publicKey));
   });
   test('validate new key', async () => {
-    const rawkey = await generateRawKey(defaultPassword, randomEd25519Key);
-    const decryptedBytes = await decryptAes(defaultPassword, rawkey.cipherSecretKey);
+    const rawkey = await generateRawKey(defaultPassword, randomEd25519Key, randomSalt);
+    const decryptedBytes = await decryptAes(defaultPassword, rawkey.cipherSecretKey, randomSalt);
     expect(decryptedBytes).toEqual(randomEd25519Key.secretKey);
   });
   test('change password', async () => {
