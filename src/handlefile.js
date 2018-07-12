@@ -57,4 +57,5 @@ module.exports = {
   saveSignkey,
   parsedJsonFile,
   getDirectoryFromPath,
+  getNextVersionKey,
 };
