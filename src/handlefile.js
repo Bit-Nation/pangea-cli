@@ -2,13 +2,11 @@
 
 const fs = require('fs');
 
-const getNameFromPath = (path) => {
-  return path.split('/').slice(-1)[0];
-};
+const getNameFromPath = path => path.split('/').slice(-1)[0];
 
 const getDirectoryFromPath = (path) => {
   const realPath = path.trim();
-  let arr = realPath.split('/');
+  const arr = realPath.split('/');
   arr.pop();
   return arr.join('/');
 };

@@ -6,23 +6,15 @@ const aesjs = require('aes-js');
 const secureRandom = require('secure-random');
 const { parsedJsonFile } = require('./handlefile');
 
-var _salt;
+let _salt;
 
-const convertHexToBytes = (hexkey) => {
-  return aesjs.utils.hex.toBytes(hexkey);
-};
+const convertHexToBytes = hexkey => aesjs.utils.hex.toBytes(hexkey);
 
-const convertByteToHex = (byteskey) => {
-  return aesjs.utils.hex.fromBytes(byteskey);
-};
+const convertByteToHex = byteskey => aesjs.utils.hex.fromBytes(byteskey);
 
-const generateEd25519Key = () => {
-  return nacl.sign.keyPair();
-};
+const generateEd25519Key = () => nacl.sign.keyPair();
 
-const generateRandomSalt = () => {
-  return secureRandom.randomArray(200);
-};
+const generateRandomSalt = () => secureRandom.randomArray(200);
 
 const generatePass = (password, existSalt) => {
   if (existSalt) {
