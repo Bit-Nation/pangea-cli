@@ -53,13 +53,6 @@ const caculatorLogN = async () => {
       break;
     }
   }
-  const obj = {
-    id: 'logN',
-    cost: logN,
-  };
-  store.add(obj, (err) => {
-    if (err) throw err;
-  });
   return logN;
 };
 
@@ -85,6 +78,15 @@ const deriveKeyAESPass = async (password, salt) => {
   const checkCost = await checkCostLogNExist();
 
   const cpuCost = (checkCost === 0) ? await caculatorLogN() : checkCost;
+  if (checkCost === 0) {
+    const obj = {
+      id: 'logN',
+      cost: cpuCost,
+    };
+    store.add(obj, (err) => {
+      if (err) throw err;
+    });
+  }
   const key = await generatePass(password, cpuCost, salt);
   return key;
 };
@@ -180,4 +182,5 @@ module.exports = {
   generateOriginKeyFromPassword,
   encryptAes,
   decryptAes,
+  caculatorLogN,
 };
