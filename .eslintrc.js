@@ -28,6 +28,8 @@ module.exports = {
       "max-len": "off",
       "import/prefer-default-export": "off",
       'no-console': 'off',
+      'no-await-in-loop': 0,
+      'arrow-body-style': 0,
       "prefer-destructuring": ["error", {
         "array": false,
         "object": false

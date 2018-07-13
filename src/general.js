@@ -4,8 +4,12 @@ const nacl = require('tweetnacl');
 const scrypt = require('scrypt-async');
 const aesjs = require('aes-js');
 const secureRandom = require('secure-random');
+const LocalObjectStore = require('local-object-store');
+const { timeFnPromise } = require('jschest');
 const { parsedJsonFile } = require('./handlefile');
 
+const store = new LocalObjectStore('./localstore');
+const defaultPassword = 'pangea';
 let _salt;
 
 const convertHexToBytes = hexkey => aesjs.utils.hex.toBytes(hexkey);
@@ -16,7 +20,7 @@ const generateEd25519Key = () => nacl.sign.keyPair();
 
 const generateRandomSalt = () => secureRandom.randomArray(200);
 
-const generatePass = (password, existSalt) => {
+const generatePass = (password, cpuCost = 14, existSalt) => {
   if (existSalt) {
     _salt = convertHexToBytes(existSalt);
   } else {
@@ -24,7 +28,7 @@ const generatePass = (password, existSalt) => {
   }
   return new Promise((resolve) => {
     scrypt(password, _salt, {
-      N: 2048,
+      N: 2 ** cpuCost,
       r: 8,
       p: 1,
       dkLen: 32,
@@ -35,8 +39,55 @@ const generatePass = (password, existSalt) => {
   });
 };
 
+const wrappedFunctionThatReturnsAPromise = timeFnPromise(generatePass);
+const randomSalt = convertByteToHex(generateRandomSalt());
+const caculatorParamater = async () => {
+  console.log('Please wait a moment...');
+  for (let index = 21; index > 1; index -= 1) {
+    const values = await wrappedFunctionThatReturnsAPromise(defaultPassword, index, randomSalt);
+    const { elapsedTime } = values;
+    console.log('Please wait a moment...');
+    if (elapsedTime <= 100) {
+      const obj = {
+        id: 'paramater',
+        cost: index,
+      };
+      store.add(obj, (err) => {
+        if (err) throw err;
+      });
+      return index;
+    }
+  }
+  return 0;
+};
+
+const checkCostPromise = () => {
+  return new Promise((resolve) => {
+    store.load('paramater', (err, obj) => {
+      if (err) resolve(0);
+      if (obj === undefined) {
+        resolve(0);
+      } else {
+        resolve(obj.cost);
+      }
+    });
+  });
+};
+
+const checkCostParamaterExist = async () => {
+  const cost = await checkCostPromise();
+  return cost;
+};
+
 const deriveKeyAESPass = async (password, salt) => {
-  const key = await generatePass(password, salt);
+  const checkCost = await checkCostParamaterExist();
+  let cpuCost = 14;
+  if (checkCost === 0) {
+    cpuCost = await caculatorParamater();
+  } else {
+    cpuCost = checkCost;
+  }
+  const key = await generatePass(password, cpuCost, salt);
   return key;
 };
 
@@ -116,6 +167,7 @@ const generateSignKeyWithOtherPass = async (newpassword, oldkey, salt) => {
 };
 
 module.exports = {
+  generatePass,
   generateRandomSalt,
   generateEd25519Key,
   deriveKeyAESPass,
