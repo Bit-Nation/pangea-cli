@@ -6,6 +6,12 @@ const { prompt } = require('inquirer');
 const { saveNewKey, changePassword } = require('./src/app');
 const { validatePassword } = require('./src/general');
 
+const checkPathExist = (dir) => {
+  if (!fs.existsSync(`${__dirname}/${dir}`)) {
+    fs.mkdirSync(`${__dirname}/${dir}`);
+  }
+};
+
 const generateNewSigningKey = [
   {
     type: 'input',
@@ -63,7 +69,12 @@ program
     prompt(generateNewSigningKey).then((answers) => {
       const answersPath = answers.path.trim();
       let dir = answersPath;
-      if (!fs.existsSync(answersPath) && answersPath !== `${__dirname}/keypath/SIGNING_KEY`) dir = `${__dirname}/${answersPath}`;
+      if (answersPath === `${__dirname}/keypath/SIGNING_KEY`) {
+        checkPathExist('keypath');
+      } else if (!fs.existsSync(answersPath)) {
+        checkPathExist('keypath');
+        dir = `${__dirname}/keypath/${answersPath}`;
+      }
       if (answers.password === answers.repassword) {
         saveNewKey(dir, answers.password);
       } else console.log('Password do not match. Try again.');
