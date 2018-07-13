@@ -1,7 +1,9 @@
+// @flow
+
 const nacl = require('tweetnacl');
 const scrypt = require('scrypt-async');
 const aesjs = require('aes-js');
-const secureRandom = require('secure-random')
+const secureRandom = require('secure-random');
 const { parsedJsonFile } = require('./handlefile');
 
 var _salt;
@@ -42,7 +44,8 @@ const generatePass = (password, existSalt) => {
 };
 
 const deriveKeyAESPass = async (password, salt) => {
-  return await generatePass(password, salt);
+  const key = await generatePass(password, salt);
+  return key;
 };
 
 const encryptAes = async (password, ed25519Key, salt) => {
@@ -61,12 +64,6 @@ const decryptAes = async (password, encryptedHex, salt) => {
   return aesCtr.decrypt(encryptedBytes);
 };
 
-/**
- * 
- * @param  {string} password
- * @param  {Object} ed25519Key
- * @param  {string} salt
- */
 const generateRawKey = async (password, ed25519Key, salt) => {
   let ed25519randomkey = {};
   if (ed25519Key) ed25519randomkey = ed25519Key;
@@ -97,11 +94,6 @@ const generateKeyPair = async (password, encryptedHex, salt) => {
   return nacl.sign.keyPair.fromSecretKey(decryptedBytes);
 };
 
-/**
- * Generate pair-key when unencrypted
- * @param  {string} filepath
- * @param  {string} password
- */
 const generateOriginKeyFromPassword = async (filepath, password) => {
   const jsonData = parsedJsonFile(filepath);
   const publickeyHex = jsonData.public_key;

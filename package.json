@@ -1,11 +1,12 @@
 {
   "name": "dappkey",
   "version": "1.0.0",
-  "main": "app",
+  "main": "command.js",
   "preferGlobal": true,
   "bin": "./command.js",
   "license": "MIT",
   "scripts": {
+    "build": "babel src/ -d lib/",
     "lint": "eslint src/**",
     "test": "jest",
     "coverage": "jest --collectCoverageFrom=src/**.js --coverage src"
@@ -19,7 +20,10 @@
     "tweetnacl": "^1.0.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "babel-eslint": "^8.2.6",
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
+    "babel-preset-flow": "^6.23.0",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "13.0.0",
     "eslint-plugin-import": "^2.12.0",

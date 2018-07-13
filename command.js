@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-
+// @flow
 const fs = require('fs');
 const program = require('commander');
 const { prompt } = require('inquirer');
-const { saveNewKey, changePassword } = require('./app');
+const { saveNewKey, changePassword } = require('./src/app');
 const { validatePassword } = require('./src/general');
 
 const generateNewSigningKey = [
@@ -63,7 +63,6 @@ program
       const answersPath = answers.path.trim();
       let dir = answersPath;
       if (!fs.existsSync(answersPath) && answersPath !== `${__dirname}/SIGNING_KEY`) dir = `${__dirname}/${answersPath}`;
-      console.log(dir);
       if (answers.password === answers.repassword) {
         saveNewKey(dir, answers.password);
       } else console.log('Password do not match. Try again.');

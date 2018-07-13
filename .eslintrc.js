@@ -32,7 +32,14 @@ module.exports = {
       'arrow-body-style': 0,
       'no-console': 'off',
       'prefer-const': 0,
+      'no-var': 0,
       "no-useless-escape": 0,
-      "strict": 0
+      "strict": 0,
+      "prefer-destructuring": ["error", {
+        "array": false,
+        "object": false
+      }, {
+        "enforceForRenamedProperties": false
+      }]
     },
   };

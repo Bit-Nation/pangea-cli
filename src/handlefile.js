@@ -1,7 +1,7 @@
+// @flow
+
 const fs = require('fs');
-/**
- * @param  {string} path
- */
+
 const getNameFromPath = (path) => {
   return path.split('/').slice(-1)[0];
 };

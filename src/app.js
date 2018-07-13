@@ -1,13 +1,15 @@
+// @flow
+
 const {
   generateRawKey,
   generateSignKey,
   generateSignKeyWithOtherPass,
   generateOriginKeyFromPassword,
-} = require('./src/general');
+} = require('./general');
 const {
   saveSignkey,
   getDirectoryFromPath,
-} = require('./src/handlefile');
+} = require('./handlefile');
 
 const saveNewKey = async (filepath, password) => {
   const rawkey = await generateRawKey(password);
