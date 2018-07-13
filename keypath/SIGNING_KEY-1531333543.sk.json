@@ -1,1 +1,0 @@
-{"name":"SIGNING_KEY","created_at":1531333543,"public_key":"a406345c04d772bec172b3497123713a9bbb147e119cc4aadd5290dc5fe5e268","private_key_cipher_text":"a270757f91b58ead2786286ce1e7a560000adeb53fb8b14cb76635a27e83904e0abc24d26900f671225ab8561391584a01eeb9fd4821647be55cea68355718a3","scrypt_params":{"n":2048,"r":8,"p":1,"salt":"salt"},"version":"0.1"}

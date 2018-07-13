@@ -11,7 +11,7 @@ const generateNewSigningKey = [
     type: 'input',
     name: 'path',
     message: 'Enter key name ...',
-    default: `${__dirname}/SIGNING_KEY`,
+    default: `${__dirname}/keypath/SIGNING_KEY`,
   },
   {
     type: 'password',
@@ -36,7 +36,8 @@ const changePasswordSigningKey = [
     name: 'oldpassword',
     message: 'Enter old password ...',
     validate: (input, answers) => {
-      return validatePassword(answers.path, input);
+      const validate = validatePassword(answers.path, input);
+      return validate;
     },
   },
   {
@@ -62,7 +63,7 @@ program
     prompt(generateNewSigningKey).then((answers) => {
       const answersPath = answers.path.trim();
       let dir = answersPath;
-      if (!fs.existsSync(answersPath) && answersPath !== `${__dirname}/SIGNING_KEY`) dir = `${__dirname}/${answersPath}`;
+      if (!fs.existsSync(answersPath) && answersPath !== `${__dirname}/keypath/SIGNING_KEY`) dir = `${__dirname}/${answersPath}`;
       if (answers.password === answers.repassword) {
         saveNewKey(dir, answers.password);
       } else console.log('Password do not match. Try again.');
