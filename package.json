@@ -6,8 +6,6 @@
   "bin": "./command.js",
   "license": "MIT",
   "scripts": {
-    "build": "babel src/ -d lib/",
-    "prepublish": "npm run build",
     "lint": "eslint src/**",
     "test": "jest",
     "coverage": "jest --collectCoverageFrom=src/**.js --coverage src"

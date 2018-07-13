@@ -19,6 +19,7 @@ module.exports = {
     },
     rules: {
       "new-cap": 0,
+      "no-plusplus": 0,
       "require-jsdoc": 2,
       "valid-jsdoc": 2,
       "react/jsx-filename-extension": [0, { "extensions": [".js", ".jsx"] }],

@@ -8,6 +8,7 @@ const LocalObjectStore = require('local-object-store');
 const { timeFnPromise } = require('jschest');
 const { parsedJsonFile } = require('./handlefile');
 
+const MAX_LOG_N = 31;
 const store = new LocalObjectStore('./localstore');
 const defaultPassword = 'pangea';
 let _salt;
@@ -41,29 +42,30 @@ const generatePass = (password, cpuCost = 14, existSalt) => {
 
 const wrappedFunctionThatReturnsAPromise = timeFnPromise(generatePass);
 const randomSalt = convertByteToHex(generateRandomSalt());
-const caculatorParamater = async () => {
+const caculatorLogN = async () => {
   console.log('Please wait a moment...');
-  for (let index = 21; index > 1; index -= 1) {
+  let logN = 1;
+  for (let index = 1; index <= MAX_LOG_N; index++) {
     const values = await wrappedFunctionThatReturnsAPromise(defaultPassword, index, randomSalt);
     const { elapsedTime } = values;
-    console.log('Please wait a moment...');
-    if (elapsedTime <= 100) {
-      const obj = {
-        id: 'paramater',
-        cost: index,
-      };
-      store.add(obj, (err) => {
-        if (err) throw err;
-      });
-      return index;
+    if (elapsedTime > 100) {
+      logN = (index > 1) ? (index - 1) : index;
+      break;
     }
   }
-  return 0;
+  const obj = {
+    id: 'logN',
+    cost: logN,
+  };
+  store.add(obj, (err) => {
+    if (err) throw err;
+  });
+  return logN;
 };
 
 const checkCostPromise = () => {
   return new Promise((resolve) => {
-    store.load('paramater', (err, obj) => {
+    store.load('logN', (err, obj) => {
       if (err) resolve(0);
       if (obj === undefined) {
         resolve(0);
@@ -74,19 +76,15 @@ const checkCostPromise = () => {
   });
 };
 
-const checkCostParamaterExist = async () => {
+const checkCostLogNExist = async () => {
   const cost = await checkCostPromise();
   return cost;
 };
 
 const deriveKeyAESPass = async (password, salt) => {
-  const checkCost = await checkCostParamaterExist();
-  let cpuCost = 14;
-  if (checkCost === 0) {
-    cpuCost = await caculatorParamater();
-  } else {
-    cpuCost = checkCost;
-  }
+  const checkCost = await checkCostLogNExist();
+
+  const cpuCost = (checkCost === 0) ? await caculatorLogN() : checkCost;
   const key = await generatePass(password, cpuCost, salt);
   return key;
 };
@@ -112,9 +110,9 @@ const generateRawKey = async (password, ed25519Key, salt) => {
   if (ed25519Key) ed25519randomkey = ed25519Key;
   else ed25519randomkey = generateEd25519Key();
   const encryptedBytes = await encryptAes(password, ed25519randomkey, salt);
-  const costParamater = await checkCostPromise();
+  const costlogN = await checkCostPromise();
   return {
-    cost: costParamater,
+    cost: costlogN,
     publicKey: convertByteToHex(ed25519randomkey.publicKey),
     cipherSecretKey: convertByteToHex(encryptedBytes),
   };
