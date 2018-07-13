@@ -111,9 +111,10 @@ const generateRawKey = async (password, ed25519Key, salt) => {
   let ed25519randomkey = {};
   if (ed25519Key) ed25519randomkey = ed25519Key;
   else ed25519randomkey = generateEd25519Key();
-
   const encryptedBytes = await encryptAes(password, ed25519randomkey, salt);
+  const costParamater = await checkCostPromise();
   return {
+    cost: costParamater,
     publicKey: convertByteToHex(ed25519randomkey.publicKey),
     cipherSecretKey: convertByteToHex(encryptedBytes),
   };
@@ -124,7 +125,7 @@ const generateSignKey = (rawkey) => {
   signingKey.public_key = rawkey.publicKey;
   signingKey.private_key_cipher_text = rawkey.cipherSecretKey;
   signingKey.scrypt_params = {
-    n: 2048,
+    n: 2 ** rawkey.cost,
     r: 8,
     p: 1,
     salt: convertByteToHex(_salt),
