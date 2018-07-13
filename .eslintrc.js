@@ -24,17 +24,10 @@ module.exports = {
       "react/jsx-filename-extension": [0, { "extensions": [".js", ".jsx"] }],
       "jsx-quotes": [2, "prefer-single"],
       "no-return-assign": [2, "except-parens"],
-      "react/default-props-match-prop-types" : 0,
       "no-underscore-dangle": 0,
-      "react/require-default-props":0,
       "max-len": "off",
       "import/prefer-default-export": "off",
-      'arrow-body-style': 0,
       'no-console': 'off',
-      'prefer-const': 0,
-      'no-var': 0,
-      "no-useless-escape": 0,
-      "strict": 0,
       "prefer-destructuring": ["error", {
         "array": false,
         "object": false
