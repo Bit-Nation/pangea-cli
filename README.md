@@ -25,14 +25,14 @@ Install the package with `npm install pangto -g`.
 ## Usage
 
 __creating new singing keys__
-1. run `pangto sk:new` (sk = singing key)
+1. run `pangea-cli sk:new` (sk = singing key)
 2. enter all requested data
 
 Signing keys are stored encrypted.
 Make sure to remember the password.
 
 __change the password of a signing key__
-1. run `pangto sk:pw <signing-key-file>` to change the password of the singing key.
+1. run `pangea-cli sk:pw <signing-key-file>` to change the password of the singing key.
 2. enter all requested data
 
 When you change the password of the signing key,
