@@ -10,6 +10,9 @@
     "test": "jest",
     "coverage": "jest --collectCoverageFrom=src/**.js --coverage src"
   },
+  "engines" : {
+    "node" : ">=8.11.3"
+  },
   "dependencies": {
     "aes-js": "^3.1.1",
     "commander": "^2.16.0",
