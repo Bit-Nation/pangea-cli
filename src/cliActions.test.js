@@ -206,10 +206,10 @@ describe('cliActions', () => {
                     await signingKeyChangePW(payload, 'testing_signing_key-1531643650.sk.json');
 
                     // decrypt singing key again
-                    const sinigngKeySecrect = await decryptValue(newEncryptedSigningKey.private_key_cipher_text, 'my_new_password');
+                    const signingKeySecret = await decryptValue(newEncryptedSigningKey.private_key_cipher_text, 'my_new_password');
 
                     // make sure the singing key is the same after changing the password
-                    expect(sinigngKeySecrect.toString()).toBe(originalSecretValue.toString());
+                    expect(signingKeySecret.toString()).toBe(originalSecretValue.toString());
 
                     done();
 
