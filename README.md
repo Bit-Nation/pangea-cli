@@ -21,7 +21,7 @@ TODO: Put more badges here.
 
 npm link
 #Fix 'command not found'
-chmod u+x command.js
+chmod u+x index.js
 
 ## Usage
 

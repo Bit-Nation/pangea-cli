@@ -69,3 +69,4 @@ docs_build
 pangea*
 *.hprof
 
+*.sk.json
