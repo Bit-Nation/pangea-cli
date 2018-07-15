@@ -20,7 +20,7 @@ TODO: Put more badges here.
 ## Install
 > you need to have at least node version 8.11.3
 
-Install the package with `npm install pangto -g`. 
+Install the package with `npm install pangea-cli -g`. 
 
 ## Usage
 
