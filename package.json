@@ -1,6 +1,6 @@
 {
-  "name": "pangea",
-  "version": "1.0.0",
+  "name": "pangto",
+  "version": "0.1.0",
   "main": "index.js",
   "preferGlobal": true,
   "bin": "./index.js",
@@ -10,8 +10,8 @@
     "test": "jest",
     "coverage": "jest --collectCoverageFrom=src/**.js --coverage src"
   },
-  "engines" : {
-    "node" : ">=8.11.3"
+  "engines": {
+    "node": ">=8.11.3"
   },
   "dependencies": {
     "aes-js": "^3.1.1",
