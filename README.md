@@ -18,15 +18,26 @@ TODO: Put more badges here.
 ## Security
 
 ## Install
+> you need to have at least node version 8.11.3
 
-npm link
-#Fix 'command not found'
-chmod u+x index.js
+Install the package with `npm install pangto -g`. 
 
 ## Usage
 
-- dappkey sk:new
-- dappkey sk:pw
+__creating new singing keys__
+1. run `pangto sk:new` (sk = singing key)
+2. enter all requested data
+
+Signing keys are stored encrypted.
+Make sure to remember the password.
+
+__change the password of a signing key__
+1. run `pangto sk:pw <signing-key-file>` to change the password of the singing key.
+2. enter all requested data
+
+When you change the password of the signing key,
+the original key will be kept for security reasons.
+You can delete it if you would like to.
 
 ## API
 

@@ -1,5 +1,5 @@
 {
-  "name": "pangto",
+  "name": "pangea-cli",
   "version": "0.1.0",
   "main": "index.js",
   "preferGlobal": true,
