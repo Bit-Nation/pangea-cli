@@ -19,7 +19,8 @@
     "create-hmac": "^1.1.7",
     "inquirer": "^6.0.0",
     "scrypt-async": "^2.0.0",
-    "tweetnacl": "^1.0.0"
+    "tweetnacl": "^1.0.0",
+    "webpack": "^4.16.1"
   },
   "devDependencies": {
     "jest": "^23.3.0"
