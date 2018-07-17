@@ -4,7 +4,6 @@ const fs = require('fs');
 const exec = require('child_process').exec;
 
 const SIGNING_KEY_VERSION = 1;
-
 /**
  * @desc Create a new signing key pair and persist it
  * @param {string} pw password that should be used to encrypt the singing key
