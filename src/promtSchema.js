@@ -34,7 +34,16 @@ const changePasswordSigningKeySchema = [
     },
 ];
 
+const buildBundleFileSchema = [
+    {
+        type: 'password',
+        name: 'pw',
+        message: 'Verify password of signing key ...',
+    },
+];
+
 module.exports = {
     newSigningKeySchema,
     changePasswordSigningKeySchema,
+    buildBundleFileSchema,
 };

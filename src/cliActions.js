@@ -1,6 +1,7 @@
 const tweetnacl = require('tweetnacl');
 const { encryptValue, isInvalidValidPassword, decryptValue } = require('./utils');
 const fs = require('fs');
+const exec = require('child_process').exec;
 
 const SIGNING_KEY_VERSION = 1;
 
@@ -112,7 +113,47 @@ const signingKeyChangePW = ({oldPassword, newPw, newPwConfirmation}, signingKeyF
 
 });
 
+/**
+ * @desc Build bundle json file
+ * @param  {string} pw password of signing key
+ * @param  {string} signingKeyFile signing key file path
+ * @param  {bool} devMode use dev mode to build bundle json file
+ * @return {Promise<Promise>}
+ */
+const dappBuildBundleFile = ({pw}, signingKeyFile, devMode) => new Promise((res, rej) => {
+    // make sure singing key exist
+    if (!fs.existsSync(signingKeyFile)){
+        return rej(new Error(`Signing key ("${signingKeyFile}") does not exist`))
+    }
+
+    // make sure password is valid
+    if (isInvalidValidPassword(pw)){
+        return rej(isInvalidValidPassword(pw))
+    }
+
+    // read signing key
+    const rawSigningKey = fs.readFileSync(signingKeyFile, 'utf8');
+    const signingKey = JSON.parse(rawSigningKey);
+
+    // first decrypt the old signing key
+    decryptValue(signingKey.private_key_cipher_text, pw)
+
+        // after decrypting (decrypting will fail when the password is invalid) we trigger webpack build bundle json file
+        .then((singingPrivateKey) => {
+            exec(devMode ? 'npm run build:dev' : 'npm run build:prod', (error, stdout, stderr) => {
+                console.log(`${stdout}`);
+                console.log(`${stderr}`);
+                if (error !== null) {
+                    console.log(`exec error: ${error}`);
+                }
+            });
+        })
+        .catch(rej)
+
+});
+
 module.exports = {
     newSigningKey,
-    signingKeyChangePW
+    signingKeyChangePW,
+    dappBuildBundleFile,
 };

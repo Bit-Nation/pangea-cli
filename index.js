@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 const program = require('commander');
 const { prompt } = require('inquirer');
-const { newSigningKey, signingKeyChangePW } = require('./src/cliActions');
-const { newSigningKeySchema, changePasswordSigningKeySchema } = require('./src/promtSchema');
+const { newSigningKey, signingKeyChangePW, dappBuildBundleFile } = require('./src/cliActions');
+const { newSigningKeySchema, changePasswordSigningKeySchema, buildBundleFileSchema } = require('./src/promtSchema');
 
 program
   .version(require(`./package.json`).version, '-v, --version');
@@ -28,6 +28,19 @@ program
             .then(console.log)
             .catch((err) => console.error(err.message))
     });
+
+program
+  .command('dapp:build <signing-key-file>')
+  .option('-d, --dev', 'Dev mode build')
+  .description('Build a DApp to an installable bundle')
+  .action((signingKeyFile, cmd) => {
+    prompt(buildBundleFileSchema)
+        .then((answers) => {
+            return dappBuildBundleFile(answers, signingKeyFile, cmd.dev === true)
+        })
+        .then(console.log)
+        .catch((err) => console.error(err.message))
+  });
 
 program.parse(process.argv);
 if (!process.argv.slice(2).length) {
