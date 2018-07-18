@@ -38,60 +38,62 @@ const dAppMetaData = getDappMetaData();
 
 /**
  * Get data from webpack build bundle file and combine to metadata object
+ *  @param {function} callback return data with format {result:'',error:''}
  */
-const getBuildObjectFromBundle = () =>
-  new Promise((res, rej) => {
-    const filePath = path.join(process.cwd(), 'dist/index.js');
-    fs.readFile(filePath, { encoding: 'utf-8' }, function(err, data) {
-      if (!err) {
-        res({
+const getBuildObjectFromBundle = callback => {
+  const filePath = path.join(process.cwd(), 'dist/index.js');
+  fs.readFile(filePath, { encoding: 'utf-8' }, function(err, data) {
+    if (!err) {
+      callback({
+        result: {
           ...dAppMetaData,
           code: data,
-        });
-      } else {
-        rej(err);
-      }
-    });
+        },
+      });
+    } else {
+      callback({ error: err });
+    }
   });
+};
 
 /**
  * Watching webpack build process
  * @param {bool} devMode return true when arg is --dev
+ * @param {function} callback return data
  */
-const watching = devMode =>
-  new Promise((res, rej) => {
-    const pathWebpackConfig = path.join(process.cwd(), 'webpack.config.js');
+const watching = (devMode, callback) => {
+  const pathWebpackConfig = path.join(process.cwd(), 'webpack.config.js');
 
-    const webpackConfig = checkFileExist(pathWebpackConfig)
-      ? require(pathWebpackConfig)
-      : null;
+  const webpackConfig = checkFileExist(pathWebpackConfig)
+    ? require(pathWebpackConfig)
+    : null;
 
-    const compiler = webpackConfig
-      ? webpack({
-          ...webpackConfig,
-          optimization: {
-            minimize: !devMode,
-          },
-        })
-      : {};
+  const compiler = webpackConfig
+    ? webpack({
+        ...webpackConfig,
+        optimization: {
+          minimize: !devMode,
+        },
+      })
+    : {};
 
-    const compilerWatch = compiler.watch(
-      {
-        // Example watchOptions
-        aggregateTimeout: 300,
-        poll: undefined,
-      },
-      (err, stats) => {
-        // Print watch/build result here...
-        if (!devMode) {
-          compilerWatch.close();
-        }
-        getBuildObjectFromBundle()
-          .then(res)
-          .catch(rej);
+  const compilerWatch = compiler.watch(
+    {
+      // Example watchOptions
+      aggregateTimeout: 300,
+      poll: undefined,
+    },
+    (err, stats) => {
+      // Print watch/build result here...
+      if (!devMode) {
+        compilerWatch.close();
       }
-    );
-  });
+      if (callback) {
+        getBuildObjectFromBundle(callback);
+      }
+    }
+  );
+};
 
 module.exports = {
   watching,

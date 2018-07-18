@@ -135,11 +135,9 @@ const dappBuildBundleFile = ({ pw }, signingKeyFile, devMode) =>
     decryptValue(signingKey.private_key_cipher_text, pw)
       // after decrypting (decrypting will fail when the password is invalid) we trigger webpack build bundle json file
       .then(singingPrivateKey => {
-        watching(devMode)
-          .then(result => {
-            console.log(result); //TODO: need to process result
-          })
-          .catch(rej);
+        watching(devMode, ({ result, error }) => {
+          console.log(result); //TODO: need to process result
+        });
       })
       .catch(rej);
   });
