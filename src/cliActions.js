@@ -114,10 +114,10 @@ const signingKeyChangePW = ({oldPassword, newPw, newPwConfirmation}, signingKeyF
 });
 
 /**
- * @desc Build bundle json file
+ * @desc Streamming Dapp
  * @param  {string} pw password of signing key
  * @param  {string} signingKeyFile signing key file path
- * @param  {bool} devMode use dev mode to build bundle json file
+ * @param  {bool} devMode use dev mode to Streamming Dapp
  * @return {Promise<Promise>}
  */
 const dappStreaming = ({ pw }, signingKeyFile, devMode) =>
@@ -133,7 +133,7 @@ const dappStreaming = ({ pw }, signingKeyFile, devMode) =>
 
     // first decrypt the old signing key
     decryptValue(signingKey.private_key_cipher_text, pw)
-      // after decrypting (decrypting will fail when the password is invalid) we trigger webpack build bundle json file
+      // after decrypting (decrypting will fail when the password is invalid) we trigger webpack Streamming Dapp
       .then(singingPrivateKey => {
         watching(devMode, ({ result, error }) => {
           console.log(result); //TODO: need to process result
