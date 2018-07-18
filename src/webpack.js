@@ -26,6 +26,7 @@ const getDappMetaData = () => {
   const dappConfig = checkFileExist(pathDappConfig)
     ? JSON.parse(fs.readFileSync(pathDappConfig, 'utf8'))
     : {};
+
   return dappConfig
     ? {
         ...dappConfig,
@@ -34,13 +35,14 @@ const getDappMetaData = () => {
     : {};
 };
 
-const dAppMetaData = getDappMetaData();
+
 
 /**
  * Get data from webpack build bundle file and combine to metadata object
  *  @param {function} callback return data with format {result:'',error:''}
  */
 const getBuildObjectFromBundle = callback => {
+  const dAppMetaData = getDappMetaData();
   const filePath = path.join(process.cwd(), 'dist/index.js');
   fs.readFile(filePath, { encoding: 'utf-8' }, function(err, data) {
     if (!err) {

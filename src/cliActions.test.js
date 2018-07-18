@@ -14,6 +14,8 @@ jest.mock('fs', () => {
     }
 });
 
+jest.mock('webpack',() => ({}));
+
 const tweetnacl = require('tweetnacl');
 const {newSigningKey, signingKeyChangePW} = require('./cliActions');
 const {decryptValue} = require('./utils');
