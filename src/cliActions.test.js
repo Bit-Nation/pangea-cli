@@ -17,7 +17,7 @@ jest.mock('fs', () => {
 jest.mock('webpack',() => ({}));
 
 const tweetnacl = require('tweetnacl');
-const {newSigningKey, signingKeyChangePW} = require('./cliActions');
+const {newSigningKey, signingKeyChangePW, dappStreaming} = require('./cliActions');
 const {decryptValue} = require('./utils');
 const fs = require('fs');
 
@@ -115,6 +115,27 @@ describe('cliActions', () => {
 
     });
 
+    describe('dappStreaming', () => {
+
+        test(`should fail if singing key doesn't exist`, (done) => {
+
+            fs.existsSync.mockImplementation((file) => {
+                expect(file).toBe(`i-do-not-exist.json`);
+                return false
+            });
+
+            dappStreaming({}, `i-do-not-exist.json`)
+                .then(() => {
+                    done.fail("exepcted test to fail since the file doesn't exist")
+                })
+                .catch((err) => {
+                    expect(err.message).toBe(`Signing key ("i-do-not-exist.json") does not exist`);
+                    done()
+                })
+
+        });
+    });
+    
     describe('signingKeyChangePW', () => {
 
         test(`should fail if singing key doesn't exist`, (done) => {

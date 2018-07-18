@@ -120,7 +120,7 @@ const signingKeyChangePW = ({oldPassword, newPw, newPwConfirmation}, signingKeyF
  * @param  {bool} devMode use dev mode to build bundle json file
  * @return {Promise<Promise>}
  */
-const dappBuildBundleFile = ({ pw }, signingKeyFile, devMode) =>
+const dappStreaming = ({ pw }, signingKeyFile, devMode) =>
   new Promise((res, rej) => {
     // make sure singing key exist
     if (!fs.existsSync(signingKeyFile)) {
@@ -145,5 +145,5 @@ const dappBuildBundleFile = ({ pw }, signingKeyFile, devMode) =>
 module.exports = {
     newSigningKey,
     signingKeyChangePW,
-    dappBuildBundleFile,
+    dappStreaming,
 };

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const program = require('commander');
 const { prompt } = require('inquirer');
-const { newSigningKey, signingKeyChangePW, dappBuildBundleFile } = require('./src/cliActions');
+const { newSigningKey, signingKeyChangePW, dappStreaming } = require('./src/cliActions');
 const { newSigningKeySchema, changePasswordSigningKeySchema, buildBundleFileSchema } = require('./src/promtSchema');
 
 program
@@ -30,13 +30,13 @@ program
     });
 
 program
-  .command('dapp:build <signing-key-file>')
+  .command('dapp:stream <signing-key-file>')
   .option('-d, --dev', 'Dev mode build')
   .description('Build a DApp to an installable bundle')
   .action((signingKeyFile, cmd) => {
     prompt(buildBundleFileSchema)
         .then((answers) => {
-            return dappBuildBundleFile(answers, signingKeyFile, cmd.dev === true)
+            return dappStreaming(answers, signingKeyFile, cmd.dev === true)
         })
         .then(console.log)
         .catch((err) => console.error(err.message))
