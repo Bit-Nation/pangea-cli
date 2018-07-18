@@ -34,7 +34,7 @@ const changePasswordSigningKeySchema = [
     },
 ];
 
-const buildBundleFileSchema = [
+const dappStreamingSchema = [
     {
         type: 'password',
         name: 'pw',
@@ -45,5 +45,5 @@ const buildBundleFileSchema = [
 module.exports = {
     newSigningKeySchema,
     changePasswordSigningKeySchema,
-    buildBundleFileSchema,
+    dappStreamingSchema,
 };

@@ -2,7 +2,7 @@
 const program = require('commander');
 const { prompt } = require('inquirer');
 const { newSigningKey, signingKeyChangePW, dappStreaming } = require('./src/cliActions');
-const { newSigningKeySchema, changePasswordSigningKeySchema, buildBundleFileSchema } = require('./src/promtSchema');
+const { newSigningKeySchema, changePasswordSigningKeySchema, dappStreamingSchema } = require('./src/promtSchema');
 
 program
   .version(require(`./package.json`).version, '-v, --version');
@@ -31,10 +31,10 @@ program
 
 program
   .command('dapp:stream <signing-key-file>')
-  .option('-d, --dev', 'Dev mode build')
-  .description('Build a DApp to an installable bundle')
+  .option('-d, --dev', 'Development build mode')
+  .description('Streaming a DApp')
   .action((signingKeyFile, cmd) => {
-    prompt(buildBundleFileSchema)
+    prompt(dappStreamingSchema)
         .then((answers) => {
             return dappStreaming(answers, signingKeyFile, cmd.dev === true)
         })
