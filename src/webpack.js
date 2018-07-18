@@ -67,15 +67,14 @@ const watching = devMode =>
       : null;
 
     const compiler = webpackConfig
-      ? webpack([
-          { ...webpackConfig },
-          {
-            optimization: {
-              minimize: !devMode,
-            },
+      ? webpack({
+          ...webpackConfig,
+          optimization: {
+            minimize: !devMode,
           },
-        ])
+        })
       : {};
+
     const compilerWatch = compiler.watch(
       {
         // Example watchOptions
