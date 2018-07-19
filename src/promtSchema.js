@@ -38,7 +38,7 @@ const dappStreamingSchema = [
     {
         type: 'password',
         name: 'pw',
-        message: 'Verify password of signing key ...',
+        message: 'Enter password ...',
     },
 ];
 

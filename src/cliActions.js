@@ -131,7 +131,6 @@ const dappStreaming = ({ pw }, signingKeyFile, devMode) =>
     const rawSigningKey = fs.readFileSync(signingKeyFile, 'utf8');
     const signingKey = JSON.parse(rawSigningKey);
 
-    // first decrypt the old signing key
     decryptValue(signingKey.private_key_cipher_text, pw)
       // after decrypting (decrypting will fail when the password is invalid) we trigger webpack Streamming Dapp
       .then(singingPrivateKey => {

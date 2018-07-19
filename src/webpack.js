@@ -3,6 +3,12 @@ const webpack = require('webpack');
 const fs = require('fs');
 
 /* Helper functions start*/
+
+/**
+ * @desc Encode file to base64
+ * @param {string} file 
+ * @return {Buffer}
+ */
 const base64Encode = file => {
   // read binary data
   const bitmap = fs.readFileSync(file);
@@ -10,7 +16,12 @@ const base64Encode = file => {
   return new Buffer(bitmap).toString('base64');
 };
 
-const checkFileExist = path => {
+/**
+ * @desc Check file exist and show prompt error when file not found
+ * @param {string} path file path
+ * @return {bool}
+ */
+const checkFileExistAndPromptError = path => {
   if (fs.existsSync(path)) {
     return true;
   } else {
@@ -20,17 +31,20 @@ const checkFileExist = path => {
 };
 /* Helper functions end*/
 
+/**
+ * @desc Get meta data by read content file appIcon.png, dappConfig.json
+ */
 const getDappMetaData = () => {
   const appIconPath = path.join(process.cwd(), 'appIcon.png');
   const pathDappConfig = path.join(process.cwd(), 'dappConfig.json');
-  const dappConfig = checkFileExist(pathDappConfig)
+  const dappConfig = checkFileExistAndPromptError(pathDappConfig)
     ? JSON.parse(fs.readFileSync(pathDappConfig, 'utf8'))
     : {};
 
   return dappConfig
     ? {
         ...dappConfig,
-        image: checkFileExist(appIconPath) ? base64Encode(appIconPath) : null,
+        image: checkFileExistAndPromptError(appIconPath) ? base64Encode(appIconPath) : null,
       }
     : {};
 };
@@ -38,7 +52,7 @@ const getDappMetaData = () => {
 
 
 /**
- * Get data from webpack build bundle file and combine to metadata object
+ *  @desc Get data from webpack build bundle file and combine to metadata object
  *  @param {function} callback return data with format {result:'',error:''}
  */
 const getBuildObjectFromBundle = callback => {
@@ -66,7 +80,7 @@ const getBuildObjectFromBundle = callback => {
 const watching = (devMode, callback) => {
   const pathWebpackConfig = path.join(process.cwd(), 'webpack.config.js');
 
-  const webpackConfig = checkFileExist(pathWebpackConfig)
+  const webpackConfig = checkFileExistAndPromptError(pathWebpackConfig)
     ? require(pathWebpackConfig)
     : null;
 

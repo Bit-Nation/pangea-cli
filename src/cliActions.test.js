@@ -14,7 +14,8 @@ jest.mock('fs', () => {
     }
 });
 
-jest.mock('webpack',() => ({}));
+jest.mock('webpack', () => ({  }));
+jest.mock('./webpack', () => ({ watching: jest.fn() }));
 
 const tweetnacl = require('tweetnacl');
 const {newSigningKey, signingKeyChangePW, dappStreaming} = require('./cliActions');
@@ -26,7 +27,7 @@ const testKeyPair = {
     secretKey: new Uint8Array('edeea410302a10b65e30b0c8e8f5d481296deb2ec9212812e5c24b2932ea41f640c40e5d1d86be8ee8beb08ad1346666e7504315d335b051610067e7a9a61cc4'.match(/.{1,2}/g).map(byte => parseInt(byte, 16)))
 };
 
-// password is "testingtesting"
+// password is "testing_1234"
 const testSigningKey = {
     "name": "testing_signing_key",
     "public_key": "ad40f42b086b275d1f59817083f6f716b0326157ead46eed0758d45d2eff20ca",
@@ -133,6 +134,27 @@ describe('cliActions', () => {
                     done()
                 })
 
+        });
+
+        test(`should fail if enter wrong password`, (done) => {
+
+            fs.readFileSync.mockImplementation((path, enc) => {
+                expect(enc).toBe('utf8');
+                expect(path).toBe('testing_signing_key-1531643650.sk.json');
+                return JSON.stringify(testSigningKey, null, 2)
+            });
+            fs.existsSync.mockImplementation((file) => {
+                expect(file).toBe('testing_signing_key-1531643650.sk.json');
+                return true
+            });
+            dappStreaming({ pw: 'wrong password' }, 'testing_signing_key-1531643650.sk.json')
+                .then(() => {
+                    done.fail("exepcted test to fail since password is wrong")
+                })
+                .catch((err) => {
+                    expect(err.message).toBe(`failed to authenticate decrypted value`);
+                    done()
+                })
         });
     });
     
