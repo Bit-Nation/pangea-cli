@@ -1,28 +1,39 @@
 {
-  "name": "pangea-cli",
-  "version": "0.1.0",
-  "main": "index.js",
-  "preferGlobal": true,
-  "bin": "./index.js",
-  "license": "MIT",
-  "scripts": {
-    "lint": "eslint src/**",
-    "test": "jest",
-    "coverage": "jest --collectCoverageFrom=src/**.js --coverage src"
-  },
-  "engines": {
-    "node": ">=8.11.3"
-  },
-  "dependencies": {
-    "aes-js": "^3.1.1",
-    "commander": "^2.16.0",
-    "create-hmac": "^1.1.7",
-    "inquirer": "^6.0.0",
-    "scrypt-async": "^2.0.0",
-    "tweetnacl": "^1.0.0",
-    "webpack": "^4.16.1"
-  },
-  "devDependencies": {
-    "jest": "^23.3.0"
-  }
+    "name": "pangea-cli",
+    "version": "0.1.0",
+    "main": "index.js",
+    "preferGlobal": true,
+    "bin": "./index.js",
+    "license": "MIT",
+    "scripts": {
+        "eslint": "eslint --fix ./src && eslint ./src",
+        "test": "jest",
+        "coverage": "jest --collectCoverageFrom=src/**.js --coverage src"
+    },
+    "pre-commit": [
+        "eslint"
+    ],
+    "engines": {
+        "node": ">=8.11.3"
+    },
+    "dependencies": {
+        "aes-js": "^3.1.1",
+        "commander": "^2.16.0",
+        "create-hmac": "^1.1.7",
+        "inquirer": "^6.0.0",
+        "pre-commit": "^1.2.2",
+        "scrypt-async": "^2.0.0",
+        "tweetnacl": "^1.0.0",
+        "webpack": "^4.16.1"
+    },
+    "devDependencies": {
+        "eslint": "^4.19.1",
+        "eslint-plugin-prettier": "^2.6.0",
+        "prettier": "^1.11.1",
+        "babel-eslint": "^8.2.6",
+        "eslint-config-airbnb-base": "13.0.0",
+        "eslint-plugin-import": "^2.13.0",
+        "eslint-plugin-jest": "^21.17.0",
+        "jest": "^23.3.0"
+    }
 }
