@@ -73,7 +73,7 @@ const getBuildObjectFromBundle = callback => {
 };
 
 /**
- * Watching webpack build process
+ * @desc Watching webpack build process
  * @param {bool} devMode return true when arg is --dev
  * @param {function} callback return data
  */
