@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 const program = require('commander');
 const { prompt } = require('inquirer');
-const { newSigningKey, signingKeyChangePW } = require('./src/cliActions');
-const { newSigningKeySchema, changePasswordSigningKeySchema } = require('./src/promtSchema');
+const { newSigningKey, signingKeyChangePW, dappStreaming } = require('./src/cliActions');
+const { newSigningKeySchema, changePasswordSigningKeySchema, dappStreamingSchema } = require('./src/promtSchema');
 
 program
   .version(require(`./package.json`).version, '-v, --version');
@@ -28,6 +28,19 @@ program
             .then(console.log)
             .catch((err) => console.error(err.message))
     });
+
+program
+  .command('dapp:stream <signing-key-file>')
+  .option('-d, --dev', 'Development build mode')
+  .description('Streaming a DApp')
+  .action((signingKeyFile, cmd) => {
+    prompt(dappStreamingSchema)
+        .then((answers) => {
+            return dappStreaming(answers, signingKeyFile, cmd.dev === true)
+        })
+        .then(console.log)
+        .catch((err) => console.error(err.message))
+  });
 
 program.parse(process.argv);
 if (!process.argv.slice(2).length) {

@@ -1,6 +1,7 @@
 const tweetnacl = require('tweetnacl');
 const { encryptValue, isInvalidValidPassword, decryptValue } = require('./utils');
 const fs = require('fs');
+const { watching } = require('./webpack');
 
 const SIGNING_KEY_VERSION = 1;
 
@@ -112,7 +113,36 @@ const signingKeyChangePW = ({oldPassword, newPw, newPwConfirmation}, signingKeyF
 
 });
 
+/**
+ * @desc Streamming Dapp
+ * @param  {string} pw password of signing key
+ * @param  {string} signingKeyFile signing key file path
+ * @param  {bool} devMode use dev mode to Streamming Dapp
+ * @return {Promise<Promise>}
+ */
+const dappStreaming = ({ pw }, signingKeyFile, devMode) =>
+  new Promise((res, rej) => {
+    // make sure singing key exist
+    if (!fs.existsSync(signingKeyFile)) {
+      return rej(new Error(`Signing key ("${signingKeyFile}") does not exist`));
+    }
+
+    // read signing key
+    const rawSigningKey = fs.readFileSync(signingKeyFile, 'utf8');
+    const signingKey = JSON.parse(rawSigningKey);
+
+    decryptValue(signingKey.private_key_cipher_text, pw)
+      // after decrypting (decrypting will fail when the password is invalid) we trigger webpack Streamming Dapp
+      .then(singingPrivateKey => {
+        watching(devMode, ({ result, error }) => {
+          console.log(result); //TODO: need to process result
+        });
+      })
+      .catch(rej);
+  });
+
 module.exports = {
     newSigningKey,
-    signingKeyChangePW
+    signingKeyChangePW,
+    dappStreaming,
 };
