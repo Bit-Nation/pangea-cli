@@ -6,7 +6,10 @@ const {
   decryptValue,
 } = require('./utils');
 
-const { watching } = require('./webpack');
+const {
+  watchAndStreammingData,
+  watchAndWriteBundleFile,
+} = require('./webpack');
 
 const SIGNING_KEY_VERSION = 1;
 
@@ -119,13 +122,12 @@ const signingKeyChangePW = (
   });
 
 /**
- * @desc Streamming Dapp
+ * @desc Check existing of signing key, and decrypt the key
  * @param  {string} pw password of signing key
  * @param  {string} signingKeyFile signing key file path
- * @param  {bool} devMode use dev mode to Streamming Dapp
  * @return {Promise<Promise>}
  */
-const dappStreaming = ({ pw }, signingKeyFile, devMode) =>
+const processSigningKey = ({ pw }, signingKeyFile) =>
   new Promise((res, rej) => {
     // make sure singing key exist
     if (!fs.existsSync(signingKeyFile)) {
@@ -138,10 +140,40 @@ const dappStreaming = ({ pw }, signingKeyFile, devMode) =>
 
     decryptValue(signingKey.private_key_cipher_text, pw)
       // after decrypting (decrypting will fail when the password is invalid) we trigger webpack Streamming Dapp
+      .then(res)
+      .catch(rej);
+  });
+
+/**
+ * @desc Streamming Dapp
+ * @param  {string} pw password of signing key
+ * @param  {string} signingKeyFile signing key file path
+ * @param  {bool} devMode use dev mode to Streamming Dapp
+ * @return {Promise<Promise>}
+ */
+const dappStreaming = ({ pw }, signingKeyFile, devMode) =>
+  new Promise((res, rej) => {
+    processSigningKey({ pw }, signingKeyFile)
       .then(singingPrivateKey => {
-        watching(devMode, ({ result, error }) => {
+        watchAndStreammingData(devMode, ({ result, error }) => {
           console.log({ result, singingPrivateKey, error }); // TODO: need to process result
         });
+      })
+      .catch(rej);
+  });
+
+/**
+ * @desc Build Dapp
+ * @param  {string} pw password of signing key
+ * @param  {string} signingKeyFile signing key file path
+ * @param  {bool} devMode use dev mode to build Dapp
+ * @return {Promise<Promise>}
+ */
+const dappBuild = ({ pw }, signingKeyFile, devMode) =>
+  new Promise((res, rej) => {
+    processSigningKey({ pw }, signingKeyFile)
+      .then(() => {
+        watchAndWriteBundleFile(devMode);
       })
       .catch(rej);
   });
@@ -150,4 +182,5 @@ module.exports = {
   newSigningKey,
   signingKeyChangePW,
   dappStreaming,
+  dappBuild,
 };

@@ -42,8 +42,17 @@ const dappStreamingSchema = [
   },
 ];
 
+const dappBuildSchema = [
+  {
+    type: 'password',
+    name: 'pw',
+    message: 'Enter password ...',
+  },
+];
+
 module.exports = {
   newSigningKeySchema,
   changePasswordSigningKeySchema,
   dappStreamingSchema,
+  dappBuildSchema,
 };

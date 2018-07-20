@@ -6,7 +6,7 @@
     "bin": "./index.js",
     "license": "MIT",
     "scripts": {
-        "eslint": "eslint --fix ./src && eslint ./src",
+        "eslint": "eslint --fix ./src && eslint ./src ./index.js",
         "test": "jest",
         "coverage": "jest --collectCoverageFrom=src/**.js --coverage src"
     },

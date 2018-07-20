@@ -29,6 +29,21 @@ const checkFileExistAndPromptError = path => {
     return false;
   }
 };
+
+/**
+ * @desc Make sure directory existence
+ * @param {string} filePath
+ * @return {bool}
+ */
+const ensureDirectoryExistence = filePath => {
+  const dirname = path.dirname(filePath);
+  if (fs.existsSync(dirname)) {
+    return true;
+  }
+  ensureDirectoryExistence(dirname);
+  fs.mkdirSync(dirname);
+};
+
 /* Helper functions end */
 
 /**
@@ -74,11 +89,58 @@ const getBuildObjectFromBundle = callback => {
 };
 
 /**
- * @desc Watching webpack build process
+ * @desc Watching and Streamming webpack build process
  * @param {bool} devMode return true when arg is --dev
  * @param {function} callback return data
  */
-const watching = (devMode, callback) => {
+const watchAndStreammingData = (devMode, callback) => {
+  watchingChanges(devMode, () => {
+    getBuildObjectFromBundle(callback);
+  });
+};
+
+/**
+ * @desc Watching and writing bundle file
+ * @param {bool} devMode return true when arg is --dev
+ */
+const watchAndWriteBundleFile = devMode => {
+  watchingChanges(devMode, () => {
+    writeBundleBuildFile();
+  });
+};
+
+/**
+ * @desc Write bundle build file
+ */
+const writeBundleBuildFile = () => {
+  const dAppMetaData = getDappMetaData();
+  const filePath = path.join(process.cwd(), 'dist/index.js');
+  const outputPath = path.join(process.cwd(), 'build/build.json');
+  fs.readFile(filePath, { encoding: 'utf-8' }, function(err, data) {
+    if (!err) {
+      const content = JSON.stringify({
+        ...dAppMetaData,
+        code: data,
+      });
+      ensureDirectoryExistence(outputPath);
+      fs.writeFile(outputPath, content, 'utf8', function(err) {
+        if (err) {
+          return console.log(err);
+        }
+        console.log('success write update');
+      });
+    } else {
+      console.log(err);
+    }
+  });
+};
+
+/**
+ * @desc Watching webpack build process
+ * @param {bool} devMode return true when arg is --dev
+ * @param {function} callback
+ */
+const watchingChanges = (devMode, callback) => {
   const pathWebpackConfig = path.join(process.cwd(), 'webpack.config.js');
 
   const webpackConfig = checkFileExistAndPromptError(pathWebpackConfig)
@@ -106,12 +168,13 @@ const watching = (devMode, callback) => {
         compilerWatch.close();
       }
       if (callback) {
-        getBuildObjectFromBundle(callback);
+        callback();
       }
     },
   );
 };
 
 module.exports = {
-  watching,
+  watchAndStreammingData,
+  watchAndWriteBundleFile,
 };
