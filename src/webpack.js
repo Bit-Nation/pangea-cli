@@ -2,11 +2,11 @@ const path = require('path');
 const webpack = require('webpack');
 const fs = require('fs');
 
-/* Helper functions start*/
+/* Helper functions start */
 
 /**
  * @desc Encode file to base64
- * @param {string} file 
+ * @param {string} file
  * @return {Buffer}
  */
 const base64Encode = file => {
@@ -29,10 +29,11 @@ const checkFileExistAndPromptError = path => {
     return false;
   }
 };
-/* Helper functions end*/
+/* Helper functions end */
 
 /**
  * @desc Get meta data by read content file appIcon.png, dappConfig.json
+ * @return {void}
  */
 const getDappMetaData = () => {
   const appIconPath = path.join(process.cwd(), 'appIcon.png');
@@ -44,12 +45,12 @@ const getDappMetaData = () => {
   return dappConfig
     ? {
         ...dappConfig,
-        image: checkFileExistAndPromptError(appIconPath) ? base64Encode(appIconPath) : null,
+        image: checkFileExistAndPromptError(appIconPath)
+          ? base64Encode(appIconPath)
+          : null,
       }
     : {};
 };
-
-
 
 /**
  *  @desc Get data from webpack build bundle file and combine to metadata object
@@ -58,7 +59,7 @@ const getDappMetaData = () => {
 const getBuildObjectFromBundle = callback => {
   const dAppMetaData = getDappMetaData();
   const filePath = path.join(process.cwd(), 'dist/index.js');
-  fs.readFile(filePath, { encoding: 'utf-8' }, function(err, data) {
+  fs.readFile(filePath, { encoding: 'utf-8' }, (err, data) => {
     if (!err) {
       callback({
         result: {
@@ -81,7 +82,7 @@ const watching = (devMode, callback) => {
   const pathWebpackConfig = path.join(process.cwd(), 'webpack.config.js');
 
   const webpackConfig = checkFileExistAndPromptError(pathWebpackConfig)
-    ? require(pathWebpackConfig)
+    ? require(pathWebpackConfig) /*eslint import/no-dynamic-require: 0*/
     : null;
 
   const compiler = webpackConfig
@@ -99,7 +100,7 @@ const watching = (devMode, callback) => {
       aggregateTimeout: 300,
       poll: undefined,
     },
-    (err, stats) => {
+    () => {
       // Print watch/build result here...
       if (!devMode) {
         compilerWatch.close();
@@ -107,7 +108,7 @@ const watching = (devMode, callback) => {
       if (callback) {
         getBuildObjectFromBundle(callback);
       }
-    }
+    },
   );
 };
 
