@@ -8,7 +8,8 @@
   "scripts": {
     "lint": "eslint src/**",
     "test": "jest",
-    "coverage": "jest --collectCoverageFrom=src/**.js --coverage src"
+    "coverage": "jest --collectCoverageFrom=src/**.js --coverage src",
+    "coveralls": "jest --coverage --forceExit && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "engines": {
     "node": ">=8.11.3"
@@ -23,6 +24,7 @@
     "webpack": "^4.16.1"
   },
   "devDependencies": {
+    "coveralls": "^3.0.2",
     "jest": "^23.3.0"
   }
 }
