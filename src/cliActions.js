@@ -6,10 +6,7 @@ const {
   decryptValue,
 } = require('./utils');
 
-const {
-  watchAndStreammingData,
-  watchAndWriteBundleFile,
-} = require('./webpack');
+const { watchAndStreamingData, writeBundleFile } = require('./webpack');
 
 const SIGNING_KEY_VERSION = 1;
 
@@ -155,7 +152,7 @@ const dappStreaming = ({ pw }, signingKeyFile, devMode) =>
   new Promise((res, rej) => {
     processSigningKey({ pw }, signingKeyFile)
       .then(singingPrivateKey => {
-        watchAndStreammingData(devMode, ({ result, error }) => {
+        watchAndStreamingData(devMode, ({ result, error }) => {
           console.log({ result, singingPrivateKey, error }); // TODO: need to process result
         });
       })
@@ -173,7 +170,7 @@ const dappBuild = ({ pw }, signingKeyFile, devMode) =>
   new Promise((res, rej) => {
     processSigningKey({ pw }, signingKeyFile)
       .then(() => {
-        watchAndWriteBundleFile(devMode);
+        writeBundleFile(devMode);
       })
       .catch(rej);
   });

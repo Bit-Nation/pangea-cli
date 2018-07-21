@@ -93,20 +93,24 @@ const getBuildObjectFromBundle = callback => {
  * @param {bool} devMode return true when arg is --dev
  * @param {function} callback return data
  */
-const watchAndStreammingData = (devMode, callback) => {
+const watchAndStreamingData = (devMode, callback) => {
   watchingChanges(devMode, () => {
     getBuildObjectFromBundle(callback);
   });
 };
 
 /**
- * @desc Watching and writing bundle file
+ * @desc Write bundle file
  * @param {bool} devMode return true when arg is --dev
  */
-const watchAndWriteBundleFile = devMode => {
-  watchingChanges(devMode, () => {
-    writeBundleBuildFile();
-  });
+const writeBundleFile = devMode => {
+  watchingChanges(
+    devMode,
+    () => {
+      writeBundleBuildFile();
+    },
+    true, //stop watching
+  );
 };
 
 /**
@@ -139,8 +143,9 @@ const writeBundleBuildFile = () => {
  * @desc Watching webpack build process
  * @param {bool} devMode return true when arg is --dev
  * @param {function} callback
+ * @param {bool} isForceClose should not watching the file
  */
-const watchingChanges = (devMode, callback) => {
+const watchingChanges = (devMode, callback, isForceClose) => {
   const pathWebpackConfig = path.join(process.cwd(), 'webpack.config.js');
 
   const webpackConfig = checkFileExistAndPromptError(pathWebpackConfig)
@@ -164,7 +169,7 @@ const watchingChanges = (devMode, callback) => {
     },
     () => {
       // Print watch/build result here...
-      if (!devMode) {
+      if (isForceClose || !devMode) {
         compilerWatch.close();
       }
       if (callback) {
@@ -175,6 +180,6 @@ const watchingChanges = (devMode, callback) => {
 };
 
 module.exports = {
-  watchAndStreammingData,
-  watchAndWriteBundleFile,
+  watchAndStreamingData,
+  writeBundleFile,
 };
