@@ -1,7 +1,7 @@
 # pangea-cli
 
 [![standard-readme compliant](https://img.shields.io/badge/standard--readme-OK-green.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
-TODO: Put more badges here.
+[![Build Status](https://travis-ci.org/Bit-Nation/pangea-cli.svg?branch=master)](https://travis-ci.org/Bit-Nation/pangea-cli) (master)
 
 > Pangea Command Line Interface Utils
 
