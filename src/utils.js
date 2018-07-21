@@ -11,7 +11,7 @@ const SCRYPT_N = 32768;
 /**
  * @desc Validate given password
  * @param {string} password Password
- * @return {Error} Return when password length less than 8 characters
+ * @return {Error} Return when password length is less than 8 characters
  */
 const isInvalidValidPassword = password => {
   if (password.length < 8) {
@@ -81,7 +81,7 @@ const decryptValue = (encValue, password) => {
       Buffer.from(salt, 'hex'),
       {
         N: n,
-        r,
+        r: r,
         p: p,
         dkLen: dk_len,
       },
