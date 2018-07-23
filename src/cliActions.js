@@ -151,7 +151,13 @@ const buildDApp = ({ pw }, signingKeyFile, devMode) =>
   new Promise((res, rej) => {
     checkExistAndDecryptSigningKey({ pw }, signingKeyFile)
       .then(() => {
-        watchAndWriteBundleFile(devMode);
+        watchAndWriteBundleFile(devMode, ({ error }) => {
+          if (!error) {
+            res('wrote dapp build to dapp_build.json');
+          } else {
+            rej(error);
+          }
+        });
       })
       .catch(rej);
   });

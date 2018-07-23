@@ -83,19 +83,17 @@ const watchAndStreamBundleData = (devMode, callback) => {
 /**
  * @desc Write bundle file
  * @param {bool} devMode return true when arg is --dev
+ * @param {function} callback
  */
-const watchAndWriteBundleFile = devMode => {
+const watchAndWriteBundleFile = (devMode, callback) => {
   watchBundleChanges(
     devMode,
     content => {
       //write content to file
       const outputPath = path.join(process.cwd(), 'build/dapp_build.json');
       ensureDirectoryExists(outputPath);
-      fs.writeFile(outputPath, content, 'utf8', function(err) {
-        if (err) {
-          return console.log(err);
-        }
-        console.log('wrote dapp build to dapp_build.json');
+      fs.writeFile(outputPath, content, 'utf8', error => {
+        callback({ error });
       });
     },
     true, //stop watching
