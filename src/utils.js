@@ -2,6 +2,7 @@ const scrypt = require('scrypt-async');
 const crypto = require('crypto');
 const aes = require('aes-js');
 const createHmac = require('create-hmac');
+const fs = require('fs');
 
 const SCRYPT_R = 8;
 const SCRYPT_P = 1;
@@ -67,6 +68,28 @@ const encryptValue = (plainValue, password) => {
 };
 
 /**
+ * @desc Check if signing key exist and decrypt it
+ * @param  {string} pw password of signing key
+ * @param  {string} signingKeyFile signing key file path
+ * @return {Promise<Promise>}
+ */
+const checkExistAndDecryptSigningKey = ({ pw }, signingKeyFile) =>
+  new Promise((res, rej) => {
+    // make sure singing key exist
+    if (!fs.existsSync(signingKeyFile)) {
+      return rej(new Error(`Signing key ("${signingKeyFile}") does not exist`));
+    }
+
+    // read signing key
+    const rawSigningKey = fs.readFileSync(signingKeyFile, 'utf8');
+    const signingKey = JSON.parse(rawSigningKey);
+
+    decryptValue(signingKey.private_key_cipher_text, pw)
+      .then(res)
+      .catch(rej);
+  });
+
+/**
  * @desc Decrypt a value that was encrypted using the encrypt function provided by this module
  * @param {object} encValue the encrypted value
  * @param {object} password
@@ -108,4 +131,5 @@ module.exports = {
   encryptValue,
   decryptValue,
   isInvalidValidPassword,
+  checkExistAndDecryptSigningKey,
 };

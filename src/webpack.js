@@ -13,7 +13,7 @@ const base64Encode = file => {
   // read binary data
   const bitmap = fs.readFileSync(file);
   // convert binary data to base64 encoded string
-  return new Buffer(bitmap).toString('base64');
+  return new Buffer.from(bitmap).toString('base64');
 };
 
 /**
@@ -29,6 +29,20 @@ const checkFileExistAndPromptError = path => {
     return false;
   }
 };
+
+/**
+ * @desc Make sure directory exists
+ * @param {string} filePath
+ */
+const ensureDirectoryExists = filePath => {
+  const dirname = path.dirname(filePath);
+  if (fs.existsSync(dirname)) {
+    return;
+  }
+  ensureDirectoryExists(dirname);
+  fs.mkdirSync(dirname);
+};
+
 /* Helper functions end */
 
 /**
@@ -53,32 +67,46 @@ const getDappMetaData = () => {
 };
 
 /**
- *  @desc Get data from webpack build bundle file and combine to metadata object
- *  @param {function} callback return data with format {result:'',error:''}
+ * @desc Watch and Stream the build file
+ * @param {bool} devMode return true when arg is --dev
+ * @param {function} callback return data
  */
-const getBuildObjectFromBundle = callback => {
-  const dAppMetaData = getDappMetaData();
-  const filePath = path.join(process.cwd(), 'dist/index.js');
-  fs.readFile(filePath, { encoding: 'utf-8' }, (err, data) => {
-    if (!err) {
-      callback({
-        result: {
-          ...dAppMetaData,
-          code: data,
-        },
-      });
-    } else {
-      callback({ error: err });
+const watchAndStreamBundleData = (devMode, callback) => {
+  watchBundleChanges(devMode, content => {
+    if (callback) {
+      //callback return data
+      callback({ content });
     }
   });
 };
 
 /**
- * @desc Watching webpack build process
+ * @desc Write bundle file
  * @param {bool} devMode return true when arg is --dev
- * @param {function} callback return data
+ * @param {function} callback
  */
-const watching = (devMode, callback) => {
+const watchAndWriteBundleFile = (devMode, callback) => {
+  watchBundleChanges(
+    devMode,
+    content => {
+      //write content to file
+      const outputPath = path.join(process.cwd(), 'build/dapp_build.json');
+      ensureDirectoryExists(outputPath);
+      fs.writeFile(outputPath, content, 'utf8', error => {
+        callback({ error });
+      });
+    },
+    true, //stop watching
+  );
+};
+
+/**
+ * @desc Watch webpack build process
+ * @param {bool} devMode return true when arg is --dev
+ * @param {function} callback
+ * @param {bool} isForceClose should not watching the file
+ */
+const watchBundleChanges = (devMode, callback, isForceClose) => {
   const pathWebpackConfig = path.join(process.cwd(), 'webpack.config.js');
 
   const webpackConfig = checkFileExistAndPromptError(pathWebpackConfig)
@@ -100,18 +128,33 @@ const watching = (devMode, callback) => {
       aggregateTimeout: 300,
       poll: undefined,
     },
-    () => {
+    (err, stats) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      //retrieve the output of the compilation
+      const data = stats.compilation.assets['index.js'].source();
+
+      // update content data
+      const dAppMetaData = getDappMetaData();
+      const content = JSON.stringify({
+        ...dAppMetaData,
+        code: data,
+      });
+
       // Print watch/build result here...
-      if (!devMode) {
+      if (isForceClose || !devMode) {
         compilerWatch.close();
       }
       if (callback) {
-        getBuildObjectFromBundle(callback);
+        callback(content);
       }
     },
   );
 };
 
 module.exports = {
-  watching,
+  watchAndStreamBundleData,
+  watchAndWriteBundleFile,
 };

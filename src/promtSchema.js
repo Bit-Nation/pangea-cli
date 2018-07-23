@@ -34,7 +34,15 @@ const changePasswordSigningKeySchema = [
   },
 ];
 
-const dappStreamingSchema = [
+const streamDAppSchema = [
+  {
+    type: 'password',
+    name: 'pw',
+    message: 'Enter password ...',
+  },
+];
+
+const buildDAppSchema = [
   {
     type: 'password',
     name: 'pw',
@@ -45,5 +53,6 @@ const dappStreamingSchema = [
 module.exports = {
   newSigningKeySchema,
   changePasswordSigningKeySchema,
-  dappStreamingSchema,
+  streamDAppSchema,
+  buildDAppSchema,
 };

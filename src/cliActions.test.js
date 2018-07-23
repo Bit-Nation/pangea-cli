@@ -22,7 +22,8 @@ const fs = require('fs');
 const {
   newSigningKey,
   signingKeyChangePW,
-  dappStreaming,
+  streamDApp,
+  buildDApp,
 } = require('./cliActions');
 const { decryptValue } = require('./utils');
 
@@ -132,16 +133,16 @@ describe('cliActions', () => {
     });
   });
 
-  describe('dappStreaming', () => {
+  describe('streamDApp', () => {
     test("should fail if singing key doesn't exist", done => {
       fs.existsSync.mockImplementation(file => {
         expect(file).toBe('i-do-not-exist.json');
         return false;
       });
 
-      dappStreaming({}, 'i-do-not-exist.json')
+      streamDApp({}, 'i-do-not-exist.json')
         .then(() => {
-          done.fail("exepcted test to fail since the file doesn't exist");
+          done.fail("expected test to fail since the file doesn't exist");
         })
         .catch(err => {
           expect(err.message).toBe(
@@ -151,7 +152,7 @@ describe('cliActions', () => {
         });
     });
 
-    test('should fail if enter wrong password', done => {
+    test('should fail if entered wrong password', done => {
       fs.readFileSync.mockImplementation((path, enc) => {
         expect(enc).toBe('utf8');
         expect(path).toBe('testing_signing_key-1531643650.sk.json');
@@ -161,12 +162,55 @@ describe('cliActions', () => {
         expect(file).toBe('testing_signing_key-1531643650.sk.json');
         return true;
       });
-      dappStreaming(
+      streamDApp(
         { pw: 'wrong password' },
         'testing_signing_key-1531643650.sk.json',
       )
         .then(() => {
-          done.fail('exepcted test to fail since password is wrong');
+          done.fail('expected test to fail since password is wrong');
+        })
+        .catch(err => {
+          expect(err.message).toBe('failed to authenticate decrypted value');
+          done();
+        });
+    });
+  });
+
+  describe('buildDApp', () => {
+    test("should fail if singing key doesn't exist", done => {
+      fs.existsSync.mockImplementation(file => {
+        expect(file).toBe('i-do-not-exist.json');
+        return false;
+      });
+
+      buildDApp({}, 'i-do-not-exist.json')
+        .then(() => {
+          done.fail("expected test to fail since the file doesn't exist");
+        })
+        .catch(err => {
+          expect(err.message).toBe(
+            'Signing key ("i-do-not-exist.json") does not exist',
+          );
+          done();
+        });
+    });
+
+    test('should fail if entered wrong password', done => {
+      fs.readFileSync.mockImplementation((path, enc) => {
+        expect(enc).toBe('utf8');
+        expect(path).toBe('testing_signing_key-1531643650.sk.json');
+        return JSON.stringify(testSigningKey, null, 2);
+      });
+      fs.existsSync.mockImplementation(file => {
+        expect(file).toBe('testing_signing_key-1531643650.sk.json');
+        return true;
+      });
+      buildDApp(
+        { pw: 'wrong password' },
+        'testing_signing_key-1531643650.sk.json',
+      )
+        .then(() => {
+          done.fail('expected test to fail since password is wrong');
         })
         .catch(err => {
           expect(err.message).toBe('failed to authenticate decrypted value');
@@ -184,7 +228,7 @@ describe('cliActions', () => {
 
       signingKeyChangePW({}, 'i-do-not-exist.json')
         .then(() => {
-          done.fail("exepcted test to fail since the file doesn't exist");
+          done.fail("expected test to fail since the file doesn't exist");
         })
         .catch(err => {
           expect(err.message).toBe(
@@ -201,7 +245,7 @@ describe('cliActions', () => {
 
       signingKeyChangePW({ newPw: 'abc' })
         .then(() => {
-          done.fail('exepcted test to fail since the password it too short');
+          done.fail('expected test to fail since the password it too short');
         })
         .catch(err => {
           expect(err.message).toBe('password must have at least 8 characters');
@@ -219,7 +263,7 @@ describe('cliActions', () => {
         newPwConfirmation: 'wrong confirmation',
       })
         .then(() => {
-          done.fail("exepcted test to fail since the file doesn't exist");
+          done.fail("expected test to fail since the file doesn't exist");
         })
         .catch(err => {
           expect(err.message).toBe(
