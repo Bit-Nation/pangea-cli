@@ -89,13 +89,13 @@ const watchAndWriteBundleFile = devMode => {
     devMode,
     content => {
       //write content to file
-      const outputPath = path.join(process.cwd(), 'build/build.json');
+      const outputPath = path.join(process.cwd(), 'build/dapp_build.json');
       ensureDirectoryExists(outputPath);
       fs.writeFile(outputPath, content, 'utf8', function(err) {
         if (err) {
           return console.log(err);
         }
-        console.log('success write update');
+        console.log('wrote dapp build to dapp_build.json');
       });
     },
     true, //stop watching
@@ -103,7 +103,7 @@ const watchAndWriteBundleFile = devMode => {
 };
 
 /**
- * @desc Watching webpack build process
+ * @desc Watch webpack build process
  * @param {bool} devMode return true when arg is --dev
  * @param {function} callback
  * @param {bool} isForceClose should not watching the file
