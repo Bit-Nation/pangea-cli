@@ -142,10 +142,10 @@ const processSigningKey = ({ pw }, signingKeyFile) =>
   });
 
 /**
- * @desc Streamming Dapp
+ * @desc Streaming Dapp
  * @param  {string} pw password of signing key
  * @param  {string} signingKeyFile signing key file path
- * @param  {bool} devMode use dev mode to Streamming Dapp
+ * @param  {bool} devMode use dev mode to Streaming Dapp
  * @return {Promise<Promise>}
  */
 const dappStreaming = ({ pw }, signingKeyFile, devMode) =>

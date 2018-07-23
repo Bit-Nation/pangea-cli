@@ -142,7 +142,7 @@ describe('cliActions', () => {
 
       dappStreaming({}, 'i-do-not-exist.json')
         .then(() => {
-          done.fail("exepcted test to fail since the file doesn't exist");
+          done.fail("expected test to fail since the file doesn't exist");
         })
         .catch(err => {
           expect(err.message).toBe(
@@ -167,7 +167,7 @@ describe('cliActions', () => {
         'testing_signing_key-1531643650.sk.json',
       )
         .then(() => {
-          done.fail('exepcted test to fail since password is wrong');
+          done.fail('expected test to fail since password is wrong');
         })
         .catch(err => {
           expect(err.message).toBe('failed to authenticate decrypted value');
@@ -185,7 +185,7 @@ describe('cliActions', () => {
 
       dappBuild({}, 'i-do-not-exist.json')
         .then(() => {
-          done.fail("exepcted test to fail since the file doesn't exist");
+          done.fail("expected test to fail since the file doesn't exist");
         })
         .catch(err => {
           expect(err.message).toBe(
@@ -210,7 +210,7 @@ describe('cliActions', () => {
         'testing_signing_key-1531643650.sk.json',
       )
         .then(() => {
-          done.fail('exepcted test to fail since password is wrong');
+          done.fail('expected test to fail since password is wrong');
         })
         .catch(err => {
           expect(err.message).toBe('failed to authenticate decrypted value');
@@ -228,7 +228,7 @@ describe('cliActions', () => {
 
       signingKeyChangePW({}, 'i-do-not-exist.json')
         .then(() => {
-          done.fail("exepcted test to fail since the file doesn't exist");
+          done.fail("expected test to fail since the file doesn't exist");
         })
         .catch(err => {
           expect(err.message).toBe(
@@ -245,7 +245,7 @@ describe('cliActions', () => {
 
       signingKeyChangePW({ newPw: 'abc' })
         .then(() => {
-          done.fail('exepcted test to fail since the password it too short');
+          done.fail('expected test to fail since the password it too short');
         })
         .catch(err => {
           expect(err.message).toBe('password must have at least 8 characters');
@@ -263,7 +263,7 @@ describe('cliActions', () => {
         newPwConfirmation: 'wrong confirmation',
       })
         .then(() => {
-          done.fail("exepcted test to fail since the file doesn't exist");
+          done.fail("expected test to fail since the file doesn't exist");
         })
         .catch(err => {
           expect(err.message).toBe(

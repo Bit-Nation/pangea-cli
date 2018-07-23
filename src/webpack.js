@@ -67,13 +67,14 @@ const getDappMetaData = () => {
 };
 
 /**
- * @desc Watching and Streamming webpack build process
+ * @desc Watching and Streaming webpack build process
  * @param {bool} devMode return true when arg is --dev
  * @param {function} callback return data
  */
 const watchAndStreamData = (devMode, callback) => {
   watchChanges(devMode, content => {
     if (callback) {
+      //callback return data
       callback({ content });
     }
   });
@@ -87,7 +88,7 @@ const writeBundleFile = devMode => {
   watchChanges(
     devMode,
     content => {
-      //write file to bundle
+      //write content to file
       const outputPath = path.join(process.cwd(), 'build/build.json');
       ensureDirectoryExists(outputPath);
       fs.writeFile(outputPath, content, 'utf8', function(err) {
