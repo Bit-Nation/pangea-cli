@@ -22,8 +22,8 @@ const fs = require('fs');
 const {
   newSigningKey,
   signingKeyChangePW,
-  dappStreaming,
-  dappBuild,
+  streamDApp,
+  buildDApp,
 } = require('./cliActions');
 const { decryptValue } = require('./utils');
 
@@ -133,14 +133,14 @@ describe('cliActions', () => {
     });
   });
 
-  describe('dappStreaming', () => {
+  describe('streamDApp', () => {
     test("should fail if singing key doesn't exist", done => {
       fs.existsSync.mockImplementation(file => {
         expect(file).toBe('i-do-not-exist.json');
         return false;
       });
 
-      dappStreaming({}, 'i-do-not-exist.json')
+      streamDApp({}, 'i-do-not-exist.json')
         .then(() => {
           done.fail("expected test to fail since the file doesn't exist");
         })
@@ -162,7 +162,7 @@ describe('cliActions', () => {
         expect(file).toBe('testing_signing_key-1531643650.sk.json');
         return true;
       });
-      dappStreaming(
+      streamDApp(
         { pw: 'wrong password' },
         'testing_signing_key-1531643650.sk.json',
       )
@@ -176,14 +176,14 @@ describe('cliActions', () => {
     });
   });
 
-  describe('dappBuild', () => {
+  describe('buildDApp', () => {
     test("should fail if singing key doesn't exist", done => {
       fs.existsSync.mockImplementation(file => {
         expect(file).toBe('i-do-not-exist.json');
         return false;
       });
 
-      dappBuild({}, 'i-do-not-exist.json')
+      buildDApp({}, 'i-do-not-exist.json')
         .then(() => {
           done.fail("expected test to fail since the file doesn't exist");
         })
@@ -205,7 +205,7 @@ describe('cliActions', () => {
         expect(file).toBe('testing_signing_key-1531643650.sk.json');
         return true;
       });
-      dappBuild(
+      buildDApp(
         { pw: 'wrong password' },
         'testing_signing_key-1531643650.sk.json',
       )

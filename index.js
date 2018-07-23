@@ -4,14 +4,14 @@ const { prompt } = require('inquirer');
 const {
   newSigningKey,
   signingKeyChangePW,
-  dappStreaming,
-  dappBuild,
+  streamDApp,
+  buildDApp,
 } = require('./src/cliActions');
 const {
   newSigningKeySchema,
   changePasswordSigningKeySchema,
-  dappStreamingSchema,
-  dappBuildSchema,
+  streamDAppSchema,
+  buildDAppSchema,
 } = require('./src/promtSchema');
 
 program.version(require(`./package.json`).version, '-v, --version');
@@ -43,9 +43,9 @@ program
   .option('-d, --dev', 'Development build mode')
   .description('Streaming a DApp')
   .action((signingKeyFile, cmd) => {
-    prompt(dappStreamingSchema)
+    prompt(streamDAppSchema)
       .then(answers => {
-        return dappStreaming(answers, signingKeyFile, cmd.dev);
+        return streamDApp(answers, signingKeyFile, cmd.dev);
       })
       .then(console.log)
       .catch(err => console.error(err.message));
@@ -56,9 +56,9 @@ program
   .option('-d, --dev', 'Development build mode')
   .description('Build a DApp')
   .action((signingKeyFile, cmd) => {
-    prompt(dappBuildSchema)
+    prompt(buildDAppSchema)
       .then(answers => {
-        return dappBuild(answers, signingKeyFile, cmd.dev);
+        return buildDApp(answers, signingKeyFile, cmd.dev);
       })
       .then(console.log)
       .catch(err => console.error(err.message));

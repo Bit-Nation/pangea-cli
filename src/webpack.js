@@ -67,12 +67,12 @@ const getDappMetaData = () => {
 };
 
 /**
- * @desc Watching and Streaming webpack build process
+ * @desc Watch and Stream the build file
  * @param {bool} devMode return true when arg is --dev
  * @param {function} callback return data
  */
-const watchAndStreamData = (devMode, callback) => {
-  watchChanges(devMode, content => {
+const watchAndStreamBundleData = (devMode, callback) => {
+  watchBundleChanges(devMode, content => {
     if (callback) {
       //callback return data
       callback({ content });
@@ -84,8 +84,8 @@ const watchAndStreamData = (devMode, callback) => {
  * @desc Write bundle file
  * @param {bool} devMode return true when arg is --dev
  */
-const writeBundleFile = devMode => {
-  watchChanges(
+const watchAndWriteBundleFile = devMode => {
+  watchBundleChanges(
     devMode,
     content => {
       //write content to file
@@ -108,7 +108,7 @@ const writeBundleFile = devMode => {
  * @param {function} callback
  * @param {bool} isForceClose should not watching the file
  */
-const watchChanges = (devMode, callback, isForceClose) => {
+const watchBundleChanges = (devMode, callback, isForceClose) => {
   const pathWebpackConfig = path.join(process.cwd(), 'webpack.config.js');
 
   const webpackConfig = checkFileExistAndPromptError(pathWebpackConfig)
@@ -157,6 +157,6 @@ const watchChanges = (devMode, callback, isForceClose) => {
 };
 
 module.exports = {
-  watchAndStreamData,
-  writeBundleFile,
+  watchAndStreamBundleData,
+  watchAndWriteBundleFile,
 };

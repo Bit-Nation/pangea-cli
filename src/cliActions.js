@@ -4,9 +4,13 @@ const {
   encryptValue,
   isInvalidValidPassword,
   decryptValue,
+  checkExistAndDecryptSigningKey,
 } = require('./utils');
 
-const { watchAndStreamData, writeBundleFile } = require('./webpack');
+const {
+  watchAndStreamBundleData,
+  watchAndWriteBundleFile,
+} = require('./webpack');
 
 const SIGNING_KEY_VERSION = 1;
 
@@ -119,40 +123,17 @@ const signingKeyChangePW = (
   });
 
 /**
- * @desc Check if signing key exist and decrypt it
+ * @desc Stream dapp
  * @param  {string} pw password of signing key
  * @param  {string} signingKeyFile signing key file path
+ * @param  {bool} devMode use dev mode to Stream dapp
  * @return {Promise<Promise>}
  */
-const processSigningKey = ({ pw }, signingKeyFile) =>
+const streamDApp = ({ pw }, signingKeyFile, devMode) =>
   new Promise((res, rej) => {
-    // make sure singing key exist
-    if (!fs.existsSync(signingKeyFile)) {
-      return rej(new Error(`Signing key ("${signingKeyFile}") does not exist`));
-    }
-
-    // read signing key
-    const rawSigningKey = fs.readFileSync(signingKeyFile, 'utf8');
-    const signingKey = JSON.parse(rawSigningKey);
-
-    decryptValue(signingKey.private_key_cipher_text, pw)
-      // after decrypting (decrypting will fail when the password is invalid) return result
-      .then(res)
-      .catch(rej);
-  });
-
-/**
- * @desc Streaming Dapp
- * @param  {string} pw password of signing key
- * @param  {string} signingKeyFile signing key file path
- * @param  {bool} devMode use dev mode to Streaming Dapp
- * @return {Promise<Promise>}
- */
-const dappStreaming = ({ pw }, signingKeyFile, devMode) =>
-  new Promise((res, rej) => {
-    processSigningKey({ pw }, signingKeyFile)
+    checkExistAndDecryptSigningKey({ pw }, signingKeyFile)
       .then(singingPrivateKey => {
-        watchAndStreamData(devMode, ({ content }) => {
+        watchAndStreamBundleData(devMode, ({ content }) => {
           console.log({ content, singingPrivateKey }); // TODO: need to process result
         });
       })
@@ -166,11 +147,11 @@ const dappStreaming = ({ pw }, signingKeyFile, devMode) =>
  * @param  {bool} devMode use dev mode to build Dapp
  * @return {Promise<Promise>}
  */
-const dappBuild = ({ pw }, signingKeyFile, devMode) =>
+const buildDApp = ({ pw }, signingKeyFile, devMode) =>
   new Promise((res, rej) => {
-    processSigningKey({ pw }, signingKeyFile)
+    checkExistAndDecryptSigningKey({ pw }, signingKeyFile)
       .then(() => {
-        writeBundleFile(devMode);
+        watchAndWriteBundleFile(devMode);
       })
       .catch(rej);
   });
@@ -178,6 +159,6 @@ const dappBuild = ({ pw }, signingKeyFile, devMode) =>
 module.exports = {
   newSigningKey,
   signingKeyChangePW,
-  dappStreaming,
-  dappBuild,
+  streamDApp,
+  buildDApp,
 };
