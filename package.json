@@ -22,7 +22,6 @@
         "commander": "^2.16.0",
         "create-hmac": "^1.1.7",
         "inquirer": "^6.0.0",
-        "pre-commit": "^1.2.2",
         "scrypt-async": "^2.0.0",
         "tweetnacl": "^1.0.0",
         "webpack": "^4.16.1"
@@ -31,6 +30,7 @@
         "babel-eslint": "^8.2.6",
         "coveralls": "^3.0.2",
         "eslint": "^4.19.1",
+        "pre-commit": "^1.2.2",
         "eslint-config-airbnb-base": "13.0.0",
         "eslint-plugin-import": "^2.13.0",
         "eslint-plugin-jest": "^21.17.0",

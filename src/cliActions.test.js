@@ -152,7 +152,7 @@ describe('cliActions', () => {
         });
     });
 
-    test('should fail if enter wrong password', done => {
+    test('should fail if entered wrong password', done => {
       fs.readFileSync.mockImplementation((path, enc) => {
         expect(enc).toBe('utf8');
         expect(path).toBe('testing_signing_key-1531643650.sk.json');
@@ -195,7 +195,7 @@ describe('cliActions', () => {
         });
     });
 
-    test('should fail if enter wrong password', done => {
+    test('should fail if entered wrong password', done => {
       fs.readFileSync.mockImplementation((path, enc) => {
         expect(enc).toBe('utf8');
         expect(path).toBe('testing_signing_key-1531643650.sk.json');

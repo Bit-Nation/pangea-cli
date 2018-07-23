@@ -45,7 +45,7 @@ program
   .action((signingKeyFile, cmd) => {
     prompt(dappStreamingSchema)
       .then(answers => {
-        return dappStreaming(answers, signingKeyFile, cmd.dev === true);
+        return dappStreaming(answers, signingKeyFile, cmd.dev);
       })
       .then(console.log)
       .catch(err => console.error(err.message));
@@ -58,7 +58,7 @@ program
   .action((signingKeyFile, cmd) => {
     prompt(dappBuildSchema)
       .then(answers => {
-        return dappBuild(answers, signingKeyFile, cmd.dev === true);
+        return dappBuild(answers, signingKeyFile, cmd.dev);
       })
       .then(console.log)
       .catch(err => console.error(err.message));

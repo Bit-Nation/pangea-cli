@@ -31,16 +31,15 @@ const checkFileExistAndPromptError = path => {
 };
 
 /**
- * @desc Make sure directory existence
+ * @desc Make sure directory exists
  * @param {string} filePath
- * @return {bool}
  */
-const ensureDirectoryExistence = filePath => {
+const ensureDirectoryExists = filePath => {
   const dirname = path.dirname(filePath);
   if (fs.existsSync(dirname)) {
-    return true;
+    return;
   }
-  ensureDirectoryExistence(dirname);
+  ensureDirectoryExists(dirname);
   fs.mkdirSync(dirname);
 };
 
@@ -68,34 +67,15 @@ const getDappMetaData = () => {
 };
 
 /**
- *  @desc Get data from webpack build bundle file and combine to metadata object
- *  @param {function} callback return data with format {result:'',error:''}
- */
-const getBuildObjectFromBundle = callback => {
-  const dAppMetaData = getDappMetaData();
-  const filePath = path.join(process.cwd(), 'dist/index.js');
-  fs.readFile(filePath, { encoding: 'utf-8' }, (err, data) => {
-    if (!err) {
-      callback({
-        result: {
-          ...dAppMetaData,
-          code: data,
-        },
-      });
-    } else {
-      callback({ error: err });
-    }
-  });
-};
-
-/**
  * @desc Watching and Streamming webpack build process
  * @param {bool} devMode return true when arg is --dev
  * @param {function} callback return data
  */
-const watchAndStreamingData = (devMode, callback) => {
-  watchingChanges(devMode, () => {
-    getBuildObjectFromBundle(callback);
+const watchAndStreamData = (devMode, callback) => {
+  watchChanges(devMode, content => {
+    if (callback) {
+      callback({ content });
+    }
   });
 };
 
@@ -104,39 +84,21 @@ const watchAndStreamingData = (devMode, callback) => {
  * @param {bool} devMode return true when arg is --dev
  */
 const writeBundleFile = devMode => {
-  watchingChanges(
+  watchChanges(
     devMode,
-    () => {
-      writeBundleBuildFile();
-    },
-    true, //stop watching
-  );
-};
-
-/**
- * @desc Write bundle build file
- */
-const writeBundleBuildFile = () => {
-  const dAppMetaData = getDappMetaData();
-  const filePath = path.join(process.cwd(), 'dist/index.js');
-  const outputPath = path.join(process.cwd(), 'build/build.json');
-  fs.readFile(filePath, { encoding: 'utf-8' }, function(err, data) {
-    if (!err) {
-      const content = JSON.stringify({
-        ...dAppMetaData,
-        code: data,
-      });
-      ensureDirectoryExistence(outputPath);
+    content => {
+      //write file to bundle
+      const outputPath = path.join(process.cwd(), 'build/build.json');
+      ensureDirectoryExists(outputPath);
       fs.writeFile(outputPath, content, 'utf8', function(err) {
         if (err) {
           return console.log(err);
         }
         console.log('success write update');
       });
-    } else {
-      console.log(err);
-    }
-  });
+    },
+    true, //stop watching
+  );
 };
 
 /**
@@ -145,7 +107,7 @@ const writeBundleBuildFile = () => {
  * @param {function} callback
  * @param {bool} isForceClose should not watching the file
  */
-const watchingChanges = (devMode, callback, isForceClose) => {
+const watchChanges = (devMode, callback, isForceClose) => {
   const pathWebpackConfig = path.join(process.cwd(), 'webpack.config.js');
 
   const webpackConfig = checkFileExistAndPromptError(pathWebpackConfig)
@@ -167,19 +129,33 @@ const watchingChanges = (devMode, callback, isForceClose) => {
       aggregateTimeout: 300,
       poll: undefined,
     },
-    () => {
+    (err, stats) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      //retrieve the output of the compilation
+      const data = stats.compilation.assets['index.js'].source();
+
+      // update content data
+      const dAppMetaData = getDappMetaData();
+      const content = JSON.stringify({
+        ...dAppMetaData,
+        code: data,
+      });
+
       // Print watch/build result here...
       if (isForceClose || !devMode) {
         compilerWatch.close();
       }
       if (callback) {
-        callback();
+        callback(content);
       }
     },
   );
 };
 
 module.exports = {
-  watchAndStreamingData,
+  watchAndStreamData,
   writeBundleFile,
 };

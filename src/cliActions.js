@@ -6,7 +6,7 @@ const {
   decryptValue,
 } = require('./utils');
 
-const { watchAndStreamingData, writeBundleFile } = require('./webpack');
+const { watchAndStreamData, writeBundleFile } = require('./webpack');
 
 const SIGNING_KEY_VERSION = 1;
 
@@ -119,7 +119,7 @@ const signingKeyChangePW = (
   });
 
 /**
- * @desc Check existing of signing key, and decrypt the key
+ * @desc Check if signing key exist and decrypt it
  * @param  {string} pw password of signing key
  * @param  {string} signingKeyFile signing key file path
  * @return {Promise<Promise>}
@@ -136,7 +136,7 @@ const processSigningKey = ({ pw }, signingKeyFile) =>
     const signingKey = JSON.parse(rawSigningKey);
 
     decryptValue(signingKey.private_key_cipher_text, pw)
-      // after decrypting (decrypting will fail when the password is invalid) we trigger webpack Streamming Dapp
+      // after decrypting (decrypting will fail when the password is invalid) return result
       .then(res)
       .catch(rej);
   });
@@ -152,8 +152,8 @@ const dappStreaming = ({ pw }, signingKeyFile, devMode) =>
   new Promise((res, rej) => {
     processSigningKey({ pw }, signingKeyFile)
       .then(singingPrivateKey => {
-        watchAndStreamingData(devMode, ({ result, error }) => {
-          console.log({ result, singingPrivateKey, error }); // TODO: need to process result
+        watchAndStreamData(devMode, ({ content }) => {
+          console.log({ content, singingPrivateKey }); // TODO: need to process result
         });
       })
       .catch(rej);
