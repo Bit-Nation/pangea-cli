@@ -41,7 +41,7 @@ program
 program
   .command('dapp:stream <signing-key-file>')
   .option('-d, --dev', 'Development build mode')
-  .description('Streaming a DApp')
+  .description('Stream DApp to pangea')
   .action((signingKeyFile, cmd) => {
     prompt(streamDAppSchema)
       .then(answers => {
@@ -54,7 +54,7 @@ program
 program
   .command('dapp:build <signing-key-file>')
   .option('-d, --dev', 'Development build mode')
-  .description('Build a DApp')
+  .description('Bundle DApp')
   .action((signingKeyFile, cmd) => {
     prompt(buildDAppSchema)
       .then(answers => {
