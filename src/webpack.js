@@ -3,6 +3,7 @@ const webpack = require('webpack');
 const fs = require('fs');
 
 const DEFAULT_LANGUAGE_CODE = 'en-us';
+const PACKAGE_PATH = './package.json';
 /* Helper functions start */
 
 /**
@@ -47,13 +48,12 @@ const ensureDirectoryExists = filePath => {
 /* Helper functions end */
 
 /**
- * @desc Get meta data by read content file appIcon.png, dappConfig.json
+ * @desc Get meta data from package.json
  * @return {object} meta data
  */
 const getDappMetaData = () => {
-  const pathPackageConfig = path.join('./package.json');
-  const packageConfig = checkFileExistAndPromptError(pathPackageConfig)
-    ? JSON.parse(fs.readFileSync(pathPackageConfig, 'utf8'))
+  const packageConfig = checkFileExistAndPromptError(PACKAGE_PATH)
+    ? JSON.parse(fs.readFileSync(PACKAGE_PATH, 'utf8'))
     : {};
   let dappConfig = {};
   if (packageConfig.pangea_dapp) {
@@ -61,7 +61,6 @@ const getDappMetaData = () => {
   } else {
     return {}; //return when not have pangea_dapp key
   }
-  const appIconPath = path.join(dappConfig.icon_path);
   const name = dappConfig.name;
   if (dappConfig.name && !dappConfig.name[DEFAULT_LANGUAGE_CODE]) {
     console.log(`we only support for ${DEFAULT_LANGUAGE_CODE} right now`);
@@ -71,8 +70,8 @@ const getDappMetaData = () => {
   return {
     name,
     engine,
-    image: checkFileExistAndPromptError(appIconPath)
-      ? base64Encode(appIconPath)
+    image: checkFileExistAndPromptError(dappConfig.icon_path)
+      ? base64Encode(dappConfig.icon_path)
       : null,
   };
 };
@@ -105,7 +104,9 @@ const watchAndWriteBundleFile = (devMode, signingKey, callback) => {
     content => {
       const { name = {} } = JSON.parse(content);
       const nameString = Object.values(name)[0]; //Get  first item in the name object
-      const cleanNameString = nameString.replace(/([^a-z0-9]+)/gi, '-'); // Strip off illegal characters
+      const cleanNameString = nameString
+        ? nameString.replace(/([^a-z0-9]+)/gi, '-')
+        : ''; // Strip off illegal characters
       //write content to file
       const outputPath = path.join(
         process.cwd(),
