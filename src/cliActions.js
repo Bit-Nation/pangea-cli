@@ -133,8 +133,11 @@ const streamDApp = ({ pw }, signingKeyFile, devMode) =>
   new Promise((res, rej) => {
     checkExistAndDecryptSigningKey({ pw }, signingKeyFile)
       .then(singingPrivateKey => {
-        watchAndStreamBundleData(devMode, ({ content }) => {
-          console.log({ content, singingPrivateKey }); // TODO: need to process result
+        // read signing key
+        const rawSigningKey = fs.readFileSync(signingKeyFile, 'utf8');
+        const signingKey = JSON.parse(rawSigningKey);
+        watchAndStreamBundleData(devMode, signingKey, ({ content }) => {
+          console.log({ content, singingPrivateKey, signingKey }); // TODO: need to process result
         });
       })
       .catch(rej);
@@ -151,7 +154,10 @@ const buildDApp = ({ pw }, signingKeyFile, devMode) =>
   new Promise((res, rej) => {
     checkExistAndDecryptSigningKey({ pw }, signingKeyFile)
       .then(() => {
-        watchAndWriteBundleFile(devMode, ({ error }) => {
+        // read signing key
+        const rawSigningKey = fs.readFileSync(signingKeyFile, 'utf8');
+        const signingKey = JSON.parse(rawSigningKey);
+        watchAndWriteBundleFile(devMode, signingKey, ({ error }) => {
           if (!error) {
             res('wrote dapp build to dapp_build.json');
           } else {

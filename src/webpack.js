@@ -2,6 +2,8 @@ const path = require('path');
 const webpack = require('webpack');
 const fs = require('fs');
 
+const DEFAULT_LANGUAGE_CODE = 'en-us';
+const PACKAGE_PATH = './package.json';
 /* Helper functions start */
 
 /**
@@ -46,33 +48,42 @@ const ensureDirectoryExists = filePath => {
 /* Helper functions end */
 
 /**
- * @desc Get meta data by read content file appIcon.png, dappConfig.json
- * @return {void}
+ * @desc Get meta data from package.json
+ * @return {object} meta data
  */
 const getDappMetaData = () => {
-  const appIconPath = path.join(process.cwd(), 'appIcon.png');
-  const pathDappConfig = path.join(process.cwd(), 'dappConfig.json');
-  const dappConfig = checkFileExistAndPromptError(pathDappConfig)
-    ? JSON.parse(fs.readFileSync(pathDappConfig, 'utf8'))
+  const packageConfig = checkFileExistAndPromptError(PACKAGE_PATH)
+    ? JSON.parse(fs.readFileSync(PACKAGE_PATH, 'utf8'))
     : {};
+  let dappConfig = {};
+  if (packageConfig.pangea_dapp) {
+    dappConfig = packageConfig.pangea_dapp;
+  } else {
+    return {}; //return when not have pangea_dapp key
+  }
+  const name = dappConfig.name;
+  if (dappConfig.name && !dappConfig.name[DEFAULT_LANGUAGE_CODE]) {
+    console.log(`we only support for ${DEFAULT_LANGUAGE_CODE} right now`);
+  }
+  const { engine } = dappConfig;
 
-  return dappConfig
-    ? {
-        ...dappConfig,
-        image: checkFileExistAndPromptError(appIconPath)
-          ? base64Encode(appIconPath)
-          : null,
-      }
-    : {};
+  return {
+    name,
+    engine,
+    image: checkFileExistAndPromptError(dappConfig.icon_path)
+      ? base64Encode(dappConfig.icon_path)
+      : null,
+  };
 };
 
 /**
  * @desc Watch and Stream the build file
  * @param {bool} devMode return true when arg is --dev
+ * @param {object} signingKey
  * @param {function} callback return data
  */
-const watchAndStreamBundleData = (devMode, callback) => {
-  watchBundleChanges(devMode, content => {
+const watchAndStreamBundleData = (devMode, signingKey, callback) => {
+  watchBundleChanges(devMode, signingKey, content => {
     if (callback) {
       //callback return data
       callback({ content });
@@ -83,14 +94,26 @@ const watchAndStreamBundleData = (devMode, callback) => {
 /**
  * @desc Write bundle file
  * @param {bool} devMode return true when arg is --dev
+ * @param {object} signingKey
  * @param {function} callback
  */
-const watchAndWriteBundleFile = (devMode, callback) => {
+const watchAndWriteBundleFile = (devMode, signingKey, callback) => {
   watchBundleChanges(
     devMode,
+    signingKey,
     content => {
+      const { name = {} } = JSON.parse(content);
+      const nameString = Object.values(name)[0]; //Get  first item in the name object
+      const cleanNameString = nameString
+        ? nameString.replace(/([^a-z0-9]+)/gi, '-')
+        : ''; // Strip off illegal characters
       //write content to file
-      const outputPath = path.join(process.cwd(), 'build/dapp_build.json');
+      const outputPath = path.join(
+        process.cwd(),
+        `build/${cleanNameString}-${signingKey.name}-${
+          signingKey.public_key
+        }.json`,
+      );
       ensureDirectoryExists(outputPath);
       fs.writeFile(outputPath, content, 'utf8', error => {
         callback({ error });
@@ -103,10 +126,11 @@ const watchAndWriteBundleFile = (devMode, callback) => {
 /**
  * @desc Watch webpack build process
  * @param {bool} devMode return true when arg is --dev
+ * @param {object} signingKey
  * @param {function} callback
  * @param {bool} isForceClose should not watching the file
  */
-const watchBundleChanges = (devMode, callback, isForceClose) => {
+const watchBundleChanges = (devMode, signingKey, callback, isForceClose) => {
   const pathWebpackConfig = path.join(process.cwd(), 'webpack.config.js');
 
   const webpackConfig = checkFileExistAndPromptError(pathWebpackConfig)
@@ -140,6 +164,7 @@ const watchBundleChanges = (devMode, callback, isForceClose) => {
       const dAppMetaData = getDappMetaData();
       const content = JSON.stringify({
         ...dAppMetaData,
+        used_signing_key: signingKey.public_key,
         code: data,
       });
 

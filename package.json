@@ -12,7 +12,8 @@
         "coveralls": "jest --coverage --forceExit && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
     },
     "pre-commit": [
-        "eslint"
+        "eslint",
+        "test"
     ],
     "engines": {
         "node": ">=8.11.3"
