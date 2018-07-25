@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const fs = require('fs');
 
+const DEFAULT_LANGUAGE_CODE = 'en-us';
 /* Helper functions start */
 
 /**
@@ -50,16 +51,20 @@ const ensureDirectoryExists = filePath => {
  * @return {object} meta data
  */
 const getDappMetaData = () => {
-  const pathPackageConfig = path.join(process.cwd(), 'package.json');
+  const pathPackageConfig = path.join('./package.json');
   const packageConfig = checkFileExistAndPromptError(pathPackageConfig)
     ? JSON.parse(fs.readFileSync(pathPackageConfig, 'utf8'))
     : {};
-  const dappConfig = packageConfig.pangea_dapp ? packageConfig.pangea_dapp : {};
-
-  const appIconPath = path.join(process.cwd(), dappConfig.icon_path);
+  let dappConfig = {};
+  if (packageConfig.pangea_dapp) {
+    dappConfig = packageConfig.pangea_dapp;
+  } else {
+    return {}; //return when not have pangea_dapp key
+  }
+  const appIconPath = path.join(dappConfig.icon_path);
   const name = dappConfig.name;
-  if (dappConfig.name && !dappConfig.name['en-us']) {
-    console.log('we only support for en-us right now');
+  if (dappConfig.name && !dappConfig.name[DEFAULT_LANGUAGE_CODE]) {
+    console.log(`we only support for ${DEFAULT_LANGUAGE_CODE} right now`);
   }
   const { engine } = dappConfig;
 

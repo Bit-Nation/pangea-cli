@@ -85,7 +85,7 @@ const checkExistAndDecryptSigningKey = ({ pw }, signingKeyFile) =>
     const signingKey = JSON.parse(rawSigningKey);
 
     decryptValue(signingKey.private_key_cipher_text, pw)
-      .then(singingPrivateKey => res({ singingPrivateKey, signingKey }))
+      .then(res)
       .catch(rej);
   });
 
