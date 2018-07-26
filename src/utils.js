@@ -120,7 +120,7 @@ const createNewPeerInfo = () => new Promise((res, rej) => {
             return rej(err)
         }
 
-        res(null, new PeerInfo(peerID))
+        res(new PeerInfo(peerID))
 
     });
 
