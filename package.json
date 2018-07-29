@@ -1,42 +1,53 @@
 {
-    "name": "pangea-cli",
-    "version": "0.1.0",
-    "main": "index.js",
-    "preferGlobal": true,
-    "bin": "./index.js",
-    "license": "MIT",
-    "scripts": {
-        "eslint": "eslint --fix ./src && eslint ./src ./index.js",
-        "test": "jest",
-        "coverage": "jest --collectCoverageFrom=src/**.js --coverage src",
-        "coveralls": "jest --coverage --forceExit && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
-    },
-    "pre-commit": [
-        "eslint",
-        "test"
-    ],
-    "engines": {
-        "node": ">=8.11.3"
-    },
-    "dependencies": {
-        "aes-js": "^3.1.1",
-        "commander": "^2.16.0",
-        "create-hmac": "^1.1.7",
-        "inquirer": "^6.0.0",
-        "scrypt-async": "^2.0.0",
-        "tweetnacl": "^1.0.0",
-        "webpack": "^4.16.1"
-    },
-    "devDependencies": {
-        "babel-eslint": "^8.2.6",
-        "coveralls": "^3.0.2",
-        "eslint": "^4.19.1",
-        "pre-commit": "^1.2.2",
-        "eslint-config-airbnb-base": "13.0.0",
-        "eslint-plugin-import": "^2.13.0",
-        "eslint-plugin-jest": "^21.17.0",
-        "eslint-plugin-prettier": "^2.6.0",
-        "jest": "^23.3.0",
-        "prettier": "^1.11.1"
-    }
+  "name": "pangea-cli",
+  "version": "0.1.0",
+  "main": "index.js",
+  "preferGlobal": true,
+  "bin": "./index.js",
+  "license": "MIT",
+  "scripts": {
+    "eslint": "eslint --fix ./src && eslint ./src ./index.js",
+    "test": "jest",
+    "coverage": "jest --collectCoverageFrom=src/**.js --coverage src",
+    "coveralls": "jest --coverage --forceExit && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+  },
+  "engines": {
+    "node": ">=8.11.3"
+  },
+  "dependencies": {
+    "@nodeutils/defaults-deep": "^1.1.0",
+    "aes-js": "^3.1.1",
+    "commander": "^2.16.0",
+    "create-hmac": "^1.1.7",
+    "inquirer": "^6.0.0",
+    "ip": "^1.1.5",
+    "libp2p": "^0.22.0",
+    "libp2p-mplex": "^0.8.0",
+    "libp2p-multiplex": "^0.5.1",
+    "libp2p-secio": "^0.10.0",
+    "libp2p-spdy": "^0.12.1",
+    "libp2p-tcp": "^0.12.0",
+    "libp2p-websockets": "^0.12.0",
+    "multicodec": "^0.2.7",
+    "peer-id": "^0.11.0",
+    "peer-info": "^0.14.1",
+    "pull-pushable": "^2.2.0",
+    "pull-stream": "^3.6.8",
+    "qrcode-terminal": "^0.12.0",
+    "scrypt-async": "^2.0.0",
+    "tweetnacl": "^1.0.0",
+    "webpack": "^4.16.1"
+  },
+  "devDependencies": {
+    "babel-eslint": "^8.2.6",
+    "coveralls": "^3.0.2",
+    "eslint": "^4.19.1",
+    "pre-commit": "^1.2.2",
+    "eslint-config-airbnb-base": "13.0.0",
+    "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-jest": "^21.17.0",
+    "eslint-plugin-prettier": "^2.6.0",
+    "jest": "^23.3.0",
+    "prettier": "^1.11.1"
+  }
 }

@@ -2,6 +2,8 @@ const scrypt = require('scrypt-async');
 const crypto = require('crypto');
 const aes = require('aes-js');
 const createHmac = require('create-hmac');
+const PeerId = require('peer-id');
+const PeerInfo = require('peer-info');
 const fs = require('fs');
 
 const SCRYPT_R = 8;
@@ -127,9 +129,25 @@ const decryptValue = (encValue, password) => {
   });
 };
 
+/**
+ * @desc simple util to create a fresh peer id
+ * @return {Promise<PeerInfo>}
+ */
+const createNewPeerInfo = () =>
+  new Promise((res, rej) => {
+    PeerId.create((err, peerID) => {
+      if (err) {
+        return rej(err);
+      }
+
+      res(new PeerInfo(peerID));
+    });
+  });
+
 module.exports = {
   encryptValue,
   decryptValue,
   isInvalidValidPassword,
+  createNewPeerInfo,
   checkExistAndDecryptSigningKey,
 };

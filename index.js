@@ -14,6 +14,8 @@ const {
   buildDAppSchema,
 } = require('./src/promtSchema');
 
+const { loggerProtocolFactory } = require('./src/protocols');
+
 program.version(require(`./package.json`).version, '-v, --version');
 
 program
@@ -62,6 +64,15 @@ program
       })
       .then(console.log)
       .catch(err => console.error(err.message));
+  });
+
+program
+  .command('pangea:log')
+  .description('Create node that receives logs from panthalassa')
+  .action(() => {
+    loggerProtocolFactory()
+      .then()
+      .catch(console.log);
   });
 
 program.parse(process.argv);
