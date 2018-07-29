@@ -6,9 +6,10 @@
   "bin": "./index.js",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint src/**",
+    "eslint": "eslint --fix ./src && eslint ./src ./index.js",
     "test": "jest",
-    "coverage": "jest --collectCoverageFrom=src/**.js --coverage src"
+    "coverage": "jest --collectCoverageFrom=src/**.js --coverage src",
+    "coveralls": "jest --coverage --forceExit && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "engines": {
     "node": ">=8.11.3"
@@ -38,6 +39,15 @@
     "webpack": "^4.16.1"
   },
   "devDependencies": {
-    "jest": "^23.3.0"
+    "babel-eslint": "^8.2.6",
+    "coveralls": "^3.0.2",
+    "eslint": "^4.19.1",
+    "pre-commit": "^1.2.2",
+    "eslint-config-airbnb-base": "13.0.0",
+    "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-jest": "^21.17.0",
+    "eslint-plugin-prettier": "^2.6.0",
+    "jest": "^23.3.0",
+    "prettier": "^1.11.1"
   }
 }

@@ -7,24 +7,21 @@ const WS = require('libp2p-websockets');
 const defaultsDeep = require('@nodeutils/defaults-deep');
 
 class LibP2PBaseBundle extends LibP2P {
-    /**
-     * @desc libp2p node that can be used to interact with pangea
-     * @param {Object} options options for the base node
-     */
-    constructor (options) {
-        const defaults = {
-            modules: {
-                transport: [
-                    TCP,
-                    WS
-                ],
-                streamMuxer: [spdy, Mplex],
-                connEncryption: [secio],
-                peerDiscovery: [],
-            }
-        };
-        super(defaultsDeep(options, defaults))
-    }
+  /**
+   * @desc libp2p node that can be used to interact with pangea
+   * @param {Object} options options for the base node
+   */
+  constructor(options) {
+    const defaults = {
+      modules: {
+        transport: [TCP, WS],
+        streamMuxer: [spdy, Mplex],
+        connEncryption: [secio],
+        peerDiscovery: [],
+      },
+    };
+    super(defaultsDeep(options, defaults));
+  }
 }
 
 module.exports = LibP2PBaseBundle;

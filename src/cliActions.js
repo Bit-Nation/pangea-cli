@@ -1,7 +1,16 @@
 const tweetnacl = require('tweetnacl');
-const { encryptValue, isInvalidValidPassword, decryptValue } = require('./utils');
 const fs = require('fs');
-const { watching } = require('./webpack');
+const {
+  encryptValue,
+  isInvalidValidPassword,
+  decryptValue,
+  checkExistAndDecryptSigningKey,
+} = require('./utils');
+
+const {
+  watchAndStreamBundleData,
+  watchAndWriteBundleFile,
+} = require('./webpack');
 
 const SIGNING_KEY_VERSION = 1;
 
@@ -10,15 +19,16 @@ const SIGNING_KEY_VERSION = 1;
  * @param {string} pw password that should be used to encrypt the singing key
  * @param {string} pwConfirmation confirmation of the entered password
  * @param {string} skName name of the signing key (e.g. "Send Money Production")
+ * @return {Promise}
  */
-const newSigningKey = ({pw, pwConfirmation, skName}) => new Promise((res, rej) => {
-
+const newSigningKey = ({ pw, pwConfirmation, skName }) =>
+  new Promise((res, rej) => {
     // password validation
     if (pw !== pwConfirmation) {
-        return rej(new Error(`password and password confirmation have to match`))
+      return rej(new Error('password and password confirmation have to match'));
     }
     if (isInvalidValidPassword(pw)) {
-        return rej(isInvalidValidPassword(pw))
+      return rej(isInvalidValidPassword(pw));
     }
 
     // the singing key pair
@@ -31,53 +41,54 @@ const newSigningKey = ({pw, pwConfirmation, skName}) => new Promise((res, rej) =
     const skFileName = `${skName}-${unixNow}.sk.json`;
 
     encryptValue(Buffer.from(ed25519KeyPair.secretKey).toString('hex'), pw)
-        .then((encryptedSigningKey) => {
+      .then(encryptedSigningKey => {
+        // signing key file
+        const signingKeyContent = {
+          name: skName,
+          public_key: Buffer.from(ed25519KeyPair.publicKey).toString('hex'),
+          private_key_cipher_text: encryptedSigningKey,
+          created_at: unixNow,
+          version: SIGNING_KEY_VERSION,
+        };
 
-            // signing key file
-            const signingKeyContent = {
-                name: skName,
-                public_key: Buffer.from(ed25519KeyPair.publicKey).toString('hex'),
-                private_key_cipher_text: encryptedSigningKey,
-                created_at: unixNow,
-                version: SIGNING_KEY_VERSION,
-            };
-
-            fs.writeFile(skFileName, JSON.stringify(signingKeyContent, null, 2), (err) => {
-                if(err) {
-                   return rej(err)
-                }
-                res(`Persisted your signing key (${skFileName})`)
-            });
-
-
-        })
-        .catch(rej)
-
-});
+        fs.writeFile(
+          skFileName,
+          JSON.stringify(signingKeyContent, null, 2),
+          err => {
+            if (err) {
+              return rej(err);
+            }
+            res(`Persisted your signing key (${skFileName})`);
+          },
+        );
+      })
+      .catch(rej);
+  });
 
 /**
  * @desc Change password of singing key
- * @param oldPassword
- * @param newPw
- * @param newPwConfirmation
- * @param signingKeyFile
+ * @param {string} oldPassword
+ * @param {string} signingKeyFile
  * @return {Promise<Promise>}
  */
-const signingKeyChangePW = ({oldPassword, newPw, newPwConfirmation}, signingKeyFile) => new Promise((res, rej) => {
-
+const signingKeyChangePW = (
+  { oldPassword, newPw, newPwConfirmation },
+  signingKeyFile,
+) =>
+  new Promise((res, rej) => {
     // make sure singing key exist
-    if (!fs.existsSync(signingKeyFile)){
-        return rej(new Error(`Signing key ("${signingKeyFile}") does not exist`))
+    if (!fs.existsSync(signingKeyFile)) {
+      return rej(new Error(`Signing key ("${signingKeyFile}") does not exist`));
     }
 
     // make sure password is valid
-    if (isInvalidValidPassword(newPw)){
-        return rej(isInvalidValidPassword(newPw))
+    if (isInvalidValidPassword(newPw)) {
+      return rej(isInvalidValidPassword(newPw));
     }
 
     // make sure that the new passwords match
-    if (newPw !== newPwConfirmation){
-        return rej(new Error(`password and password confirmation have to match`))
+    if (newPw !== newPwConfirmation) {
+      return rej(new Error('password and password confirmation have to match'));
     }
 
     // read signing key
@@ -89,60 +100,77 @@ const signingKeyChangePW = ({oldPassword, newPw, newPwConfirmation}, signingKeyF
 
     // first decrypt the old signing key
     decryptValue(signingKey.private_key_cipher_text, oldPassword)
+      // after decrypting (decrypting will fail when the password is invalid) we encrypt with the new password
+      .then(singingPrivateKey =>
+        encryptValue(singingPrivateKey.toString(), newPw),
+      )
 
-        // after decrypting (decrypting will fail when the password is invalid) we encrypt with the new password
-        .then((singingPrivateKey) => encryptValue(singingPrivateKey.toString(), newPw))
+      // persist encrypted singing key
+      .then(encryptedSigningKey => {
+        signingKey.private_key_cipher_text = encryptedSigningKey;
+        signingKey.created_at = unixNow;
 
-        // persist encrypted singing key
-        .then((encryptedSigningKey) => {
+        const skFileName = `${signingKey.name}-${unixNow}.sk.json`;
 
-            signingKey.private_key_cipher_text = encryptedSigningKey;
-            signingKey.created_at = unixNow;
-
-            const skFileName = `${signingKey.name}-${unixNow}.sk.json`;
-
-            fs.writeFile(skFileName, JSON.stringify(signingKey, null, 2), (err) => {
-                if (err){
-                    return rej(err)
-                }
-                res(`Persisted your signing key (${skFileName})`)
-            })
-
-        })
-        .catch(rej)
-
-});
+        fs.writeFile(skFileName, JSON.stringify(signingKey, null, 2), err => {
+          if (err) {
+            return rej(err);
+          }
+          res(`Persisted your signing key (${skFileName})`);
+        });
+      })
+      .catch(rej);
+  });
 
 /**
- * @desc Streamming Dapp
+ * @desc Stream dapp
  * @param  {string} pw password of signing key
  * @param  {string} signingKeyFile signing key file path
- * @param  {bool} devMode use dev mode to Streamming Dapp
+ * @param  {bool} devMode use dev mode to Stream dapp
  * @return {Promise<Promise>}
  */
-const dappStreaming = ({ pw }, signingKeyFile, devMode) =>
+const streamDApp = ({ pw }, signingKeyFile, devMode) =>
   new Promise((res, rej) => {
-    // make sure singing key exist
-    if (!fs.existsSync(signingKeyFile)) {
-      return rej(new Error(`Signing key ("${signingKeyFile}") does not exist`));
-    }
-
-    // read signing key
-    const rawSigningKey = fs.readFileSync(signingKeyFile, 'utf8');
-    const signingKey = JSON.parse(rawSigningKey);
-
-    decryptValue(signingKey.private_key_cipher_text, pw)
-      // after decrypting (decrypting will fail when the password is invalid) we trigger webpack Streamming Dapp
+    checkExistAndDecryptSigningKey({ pw }, signingKeyFile)
       .then(singingPrivateKey => {
-        watching(devMode, ({ result, error }) => {
-          console.log(result); //TODO: need to process result
+        // read signing key
+        const rawSigningKey = fs.readFileSync(signingKeyFile, 'utf8');
+        const signingKey = JSON.parse(rawSigningKey);
+        watchAndStreamBundleData(devMode, signingKey, ({ content }) => {
+          console.log({ content, singingPrivateKey, signingKey }); // TODO: need to process result
+        });
+      })
+      .catch(rej);
+  });
+
+/**
+ * @desc Build Dapp
+ * @param  {string} pw password of signing key
+ * @param  {string} signingKeyFile signing key file path
+ * @param  {bool} devMode use dev mode to build Dapp
+ * @return {Promise<Promise>}
+ */
+const buildDApp = ({ pw }, signingKeyFile, devMode) =>
+  new Promise((res, rej) => {
+    checkExistAndDecryptSigningKey({ pw }, signingKeyFile)
+      .then(() => {
+        // read signing key
+        const rawSigningKey = fs.readFileSync(signingKeyFile, 'utf8');
+        const signingKey = JSON.parse(rawSigningKey);
+        watchAndWriteBundleFile(devMode, signingKey, ({ error }) => {
+          if (!error) {
+            res('wrote dapp build to dapp_build.json');
+          } else {
+            rej(error);
+          }
         });
       })
       .catch(rej);
   });
 
 module.exports = {
-    newSigningKey,
-    signingKeyChangePW,
-    dappStreaming,
+  newSigningKey,
+  signingKeyChangePW,
+  streamDApp,
+  buildDApp,
 };
