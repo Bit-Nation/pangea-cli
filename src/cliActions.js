@@ -5,6 +5,7 @@ const {
   isInvalidValidPassword,
   decryptValue,
   checkExistAndDecryptSigningKey,
+  convertStringToUint8Array,
 } = require('./utils');
 
 const {
@@ -140,7 +141,13 @@ const streamDApp = ({ pw }, signingKeyFile, devMode) =>
           devMode,
           { ...signingKey, singingPrivateKey },
           ({ content }) => {
-            console.log({ content, singingPrivateKey, signingKey }); // TODO: need to process result
+            const secretKey = convertStringToUint8Array(
+              singingPrivateKey.toString(),
+            );
+            const signedContent = Buffer.from(
+              tweetnacl.sign(convertStringToUint8Array(content), secretKey),
+            ).toString('hex');
+            console.log({ signedContent }); // TODO: need to process result
           },
         );
       })

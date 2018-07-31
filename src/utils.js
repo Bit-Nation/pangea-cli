@@ -5,7 +5,7 @@ const createHmac = require('create-hmac');
 const PeerId = require('peer-id');
 const PeerInfo = require('peer-info');
 const fs = require('fs');
-const tweetnacl = require('tweetnacl');
+
 const multihash = require('multihashes');
 
 const SCRYPT_R = 8;
@@ -25,14 +25,39 @@ const isInvalidValidPassword = password => {
 };
 
 /**
- * @desc get hash from message then sign the hash
- * @param {Buffer} buf
- * @param {object} secretKey
+ * @desc get hash from dApp
+ * @param {object} content
  * @return {string} hash string
  */
-const getAndSignHashFromMessage = (buf, secretKey) => {
-  const hash = multihash.encode(buf, 'sha3-256');
-  return Buffer.from(tweetnacl.sign(hash, secretKey)).toString('hex');
+const hashDappContent = content => {
+  let buff = Buffer.allocUnsafe(0);
+
+  const { name = {} } = content;
+  // 1.append name into buffer
+  //sort keys in increasing order
+  const nameLanguagesKey = Object.keys(name).sort();
+  for (let index = 0; index < nameLanguagesKey.length; index++) {
+    //append language code
+    const key = nameLanguagesKey[index];
+    buff = Buffer.concat([buff, Buffer.from(key, 'utf8')]);
+    //append name
+    const nameStr = name[key];
+    buff = Buffer.concat([buff, Buffer.from(nameStr, 'utf8')]);
+  }
+
+  // 2.append used signing  key into buffer
+  buff = Buffer.concat([buff, Buffer.from(content.used_signing_key, 'hex')]);
+
+  // 3.append code into buffer
+  buff = Buffer.concat([buff, Buffer.from(content.code, 'utf8')]);
+
+  // 4.append image into buffer
+  buff = Buffer.concat([buff, Buffer.from(content.image, 'base64')]);
+
+  // 5.append engine into buffer
+  buff = Buffer.concat([buff, Buffer.from(content.engine, 'utf8')]);
+
+  return multihash.encode(buff, 'sha3-256');
 };
 
 /**
@@ -157,11 +182,20 @@ const createNewPeerInfo = () =>
     });
   });
 
+/**
+ * @desc convert String To Uint8Array
+ * @param {string} string
+ * @return {Uint8Array}
+ */
+const convertStringToUint8Array = string =>
+  new Uint8Array(string.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+
 module.exports = {
   encryptValue,
   decryptValue,
   isInvalidValidPassword,
   createNewPeerInfo,
   checkExistAndDecryptSigningKey,
-  getAndSignHashFromMessage,
+  hashDappContent,
+  convertStringToUint8Array,
 };

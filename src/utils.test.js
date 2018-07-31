@@ -9,26 +9,63 @@ const {
   encryptValue,
   decryptValue,
   isInvalidValidPassword,
-  getAndSignHashFromMessage,
+  hashDappContent,
 } = require('./utils');
 
+const dAppContent = {
+  name: { 'en-us': 'DApp Name', de: 'DApp Name' },
+  engine: '0.1.0',
+  image: 'iVBORw0KGgoAAAANSUhEUgAAAH0AAAB9CAYAAACPg',
+  used_signing_key:
+    '16a6e448c2e1e209ab559232a98e3d0c25030e05158c22710c207fec1f2e4fbf',
+  code: 'get:function(){return"Text"}',
+};
+
 describe('utils', () => {
-  test('getAndSignHashFromMessage', () => {
-    // the singing key pair
-    const ed25519KeyPair = tweetnacl.sign.keyPair();
-    // signed the hash
-    const buf = Buffer.from('value to encrypt', 'utf8');
-    const signedHash = getAndSignHashFromMessage(buf, ed25519KeyPair.secretKey);
+  test('hashDappContent', () => {
+    const hashDapp = hashDappContent(dAppContent);
+    // expect fail if dapp content change value 1 of the its fields
+    expect(hashDappContent({ ...dAppContent, engine: '0.0.1' })).not.toEqual(
+      hashDapp,
+    );
 
-    const hash = multihash.encode(buf, 'sha3-256');
-    const signedMessage = tweetnacl.sign(hash, ed25519KeyPair.secretKey);
-    //decrypt the signedMessage and check value
     expect(
-      Buffer.from(tweetnacl.sign.open(signedMessage, ed25519KeyPair.publicKey)),
-    ).toEqual(hash);
+      hashDappContent({
+        ...dAppContent,
+        name: { de: 'not the same with dAppContent' },
+      }),
+    ).not.toEqual(hashDapp);
 
-    //make sure get the same signedHash with the same input value
-    expect(Buffer.from(signedMessage).toString('hex')).toBe(signedHash);
+    expect(
+      hashDappContent({
+        ...dAppContent,
+        image: 'not the same with dAppContent',
+      }),
+    ).not.toEqual(hashDapp);
+
+    expect(
+      hashDappContent({
+        ...dAppContent,
+        image: 'not the same with dAppContent',
+      }),
+    ).not.toEqual(hashDapp);
+
+    expect(
+      hashDappContent({
+        ...dAppContent,
+        code: 'not the same with dAppContent',
+      }),
+    ).not.toEqual(hashDapp);
+
+    // expect same hash value if the content is the same
+    expect(hashDappContent(dAppContent)).toEqual(hashDapp);
+
+    expect(
+      hashDappContent({
+        ...dAppContent,
+        name: { de: 'DApp Name', 'en-us': 'DApp Name' },
+      }),
+    ).toEqual(hashDapp);
   });
 
   test('encrypt', done => {

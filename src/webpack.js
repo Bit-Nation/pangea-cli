@@ -1,7 +1,9 @@
 const path = require('path');
 const webpack = require('webpack');
 const fs = require('fs');
-const { getAndSignHashFromMessage } = require('./utils');
+const tweetnacl = require('tweetnacl');
+
+const { hashDappContent, convertStringToUint8Array } = require('./utils');
 
 const DEFAULT_LANGUAGE_CODE = 'en-us';
 const PACKAGE_PATH = './package.json';
@@ -162,11 +164,8 @@ const watchBundleChanges = (devMode, signingKey, callback, isForceClose) => {
       //retrieve the output of the compilation
       const data = stats.compilation.assets['index.js'].source();
 
-      const secretKey = new Uint8Array(
-        signingKey.singingPrivateKey
-          .toString()
-          .match(/.{1,2}/g)
-          .map(byte => parseInt(byte, 16)),
+      const secretKey = convertStringToUint8Array(
+        signingKey.singingPrivateKey.toString(),
       );
 
       // update content data
@@ -176,37 +175,12 @@ const watchBundleChanges = (devMode, signingKey, callback, isForceClose) => {
         used_signing_key: signingKey.public_key,
         code: data,
       };
-      let buff = Buffer.allocUnsafe(0);
 
-      const { name = {} } = content;
-      // 1.append name into buffer
-      //sort keys in increasing order
-      const nameLanguagesKey = Object.keys(name).sort();
-      for (let index = 0; index < nameLanguagesKey.length; index++) {
-        //append language code
-        const key = nameLanguagesKey[index];
-        buff = Buffer.concat([buff, Buffer.from(key, 'utf8')]);
-        //append name
-        const nameStr = name[key];
-        buff = Buffer.concat([buff, Buffer.from(nameStr, 'utf8')]);
-      }
+      const contentHash = hashDappContent(content);
 
-      // 2.append used signing  key into buffer
-      buff = Buffer.concat([
-        buff,
-        Buffer.from(content.used_signing_key, 'hex'),
-      ]);
-
-      // 3.append code into buffer
-      buff = Buffer.concat([buff, Buffer.from(content.code, 'utf8')]);
-
-      // 4.append image into buffer
-      buff = Buffer.concat([buff, Buffer.from(content.image, 'base64')]);
-
-      // 5.append engine into buffer
-      buff = Buffer.concat([buff, Buffer.from(content.engine, 'utf8')]);
-
-      const contentHash = getAndSignHashFromMessage(buff, secretKey);
+      const signedHash = Buffer.from(
+        tweetnacl.sign(contentHash, secretKey),
+      ).toString('hex');
 
       // Print watch/build result here...
       if (isForceClose || !devMode) {
@@ -218,7 +192,7 @@ const watchBundleChanges = (devMode, signingKey, callback, isForceClose) => {
             ...dAppMetaData,
             used_signing_key: signingKey.public_key,
             code: data,
-            signature: contentHash,
+            signature: signedHash,
           }),
         );
       }
