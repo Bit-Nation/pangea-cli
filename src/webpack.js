@@ -161,6 +161,7 @@ const watchBundleChanges = (devMode, signingKey, callback, isForceClose) => {
       }
       //retrieve the output of the compilation
       const data = stats.compilation.assets['index.js'].source();
+
       const secretKey = new Uint8Array(
         signingKey.singingPrivateKey
           .toString()
@@ -170,12 +171,42 @@ const watchBundleChanges = (devMode, signingKey, callback, isForceClose) => {
 
       // update content data
       const dAppMetaData = getDappMetaData();
-      const content = JSON.stringify({
+      const content = {
         ...dAppMetaData,
         used_signing_key: signingKey.public_key,
         code: data,
-      });
-      const contentHash = getAndSignHashFromMessage(content, secretKey);
+      };
+      let buff = Buffer.allocUnsafe(0);
+
+      const { name = {} } = content;
+      // 1.append name into buffer
+      //sort keys in increasing order
+      const nameLanguagesKey = Object.keys(name).sort();
+      for (let index = 0; index < nameLanguagesKey.length; index++) {
+        //append language code
+        const key = nameLanguagesKey[index];
+        buff = Buffer.concat([buff, Buffer.from(key, 'utf8')]);
+        //append name
+        const nameStr = name[key];
+        buff = Buffer.concat([buff, Buffer.from(nameStr, 'utf8')]);
+      }
+
+      // 2.append used signing  key into buffer
+      buff = Buffer.concat([
+        buff,
+        Buffer.from(content.used_signing_key, 'hex'),
+      ]);
+
+      // 3.append code into buffer
+      buff = Buffer.concat([buff, Buffer.from(content.code, 'utf8')]);
+
+      // 4.append image into buffer
+      buff = Buffer.concat([buff, Buffer.from(content.image, 'base64')]);
+
+      // 5.append engine into buffer
+      buff = Buffer.concat([buff, Buffer.from(content.engine, 'utf8')]);
+
+      const contentHash = getAndSignHashFromMessage(buff, secretKey);
 
       // Print watch/build result here...
       if (isForceClose || !devMode) {

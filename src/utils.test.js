@@ -17,12 +17,9 @@ describe('utils', () => {
     // the singing key pair
     const ed25519KeyPair = tweetnacl.sign.keyPair();
     // signed the hash
-    const signedHash = getAndSignHashFromMessage(
-      'value to encrypt',
-      ed25519KeyPair.secretKey,
-    );
-
     const buf = Buffer.from('value to encrypt', 'utf8');
+    const signedHash = getAndSignHashFromMessage(buf, ed25519KeyPair.secretKey);
+
     const hash = multihash.encode(buf, 'sha3-256');
     const signedMessage = tweetnacl.sign(hash, ed25519KeyPair.secretKey);
     //decrypt the signedMessage and check value

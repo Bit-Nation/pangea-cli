@@ -26,12 +26,11 @@ const isInvalidValidPassword = password => {
 
 /**
  * @desc get hash from message then sign the hash
- * @param {string} message
+ * @param {Buffer} buf
  * @param {object} secretKey
  * @return {string} hash string
  */
-const getAndSignHashFromMessage = (message, secretKey) => {
-  const buf = Buffer.from(message, 'utf8');
+const getAndSignHashFromMessage = (buf, secretKey) => {
   const hash = multihash.encode(buf, 'sha3-256');
   return Buffer.from(tweetnacl.sign(hash, secretKey)).toString('hex');
 };
