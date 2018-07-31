@@ -2,9 +2,6 @@ const scrypt = require('scrypt-async');
 const aes = require('aes-js');
 const createHmac = require('create-hmac');
 const crypto = require('crypto');
-const tweetnacl = require('tweetnacl');
-const multihash = require('multihashes');
-
 const {
   encryptValue,
   decryptValue,
