@@ -29,6 +29,7 @@
     "libp2p-tcp": "^0.12.0",
     "libp2p-websockets": "^0.12.0",
     "multicodec": "^0.2.7",
+    "multihashes": "^0.4.13",
     "peer-id": "^0.11.0",
     "peer-info": "^0.14.1",
     "pull-pushable": "^2.2.0",

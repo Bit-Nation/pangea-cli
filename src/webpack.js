@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const fs = require('fs');
+const { getAndSignHashFromMessage } = require('./utils');
 
 const DEFAULT_LANGUAGE_CODE = 'en-us';
 const PACKAGE_PATH = './package.json';
@@ -114,6 +115,7 @@ const watchAndWriteBundleFile = (devMode, signingKey, callback) => {
           signingKey.public_key
         }.json`,
       );
+
       ensureDirectoryExists(outputPath);
       fs.writeFile(outputPath, content, 'utf8', error => {
         callback({ error });
@@ -159,6 +161,12 @@ const watchBundleChanges = (devMode, signingKey, callback, isForceClose) => {
       }
       //retrieve the output of the compilation
       const data = stats.compilation.assets['index.js'].source();
+      const secretKey = new Uint8Array(
+        signingKey.singingPrivateKey
+          .toString()
+          .match(/.{1,2}/g)
+          .map(byte => parseInt(byte, 16)),
+      );
 
       // update content data
       const dAppMetaData = getDappMetaData();
@@ -167,13 +175,21 @@ const watchBundleChanges = (devMode, signingKey, callback, isForceClose) => {
         used_signing_key: signingKey.public_key,
         code: data,
       });
+      const contentHash = getAndSignHashFromMessage(content, secretKey);
 
       // Print watch/build result here...
       if (isForceClose || !devMode) {
         compilerWatch.close();
       }
       if (callback) {
-        callback(content);
+        callback(
+          JSON.stringify({
+            ...dAppMetaData,
+            used_signing_key: signingKey.public_key,
+            code: data,
+            signature: contentHash,
+          }),
+        );
       }
     },
   );

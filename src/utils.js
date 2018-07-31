@@ -5,6 +5,8 @@ const createHmac = require('create-hmac');
 const PeerId = require('peer-id');
 const PeerInfo = require('peer-info');
 const fs = require('fs');
+const tweetnacl = require('tweetnacl');
+const multihash = require('multihashes');
 
 const SCRYPT_R = 8;
 const SCRYPT_P = 1;
@@ -20,6 +22,18 @@ const isInvalidValidPassword = password => {
   if (password.length < 8) {
     return new Error('password must have at least 8 characters');
   }
+};
+
+/**
+ * @desc get hash from message then sign the hash
+ * @param {string} message
+ * @param {object} secretKey
+ * @return {string} hash string
+ */
+const getAndSignHashFromMessage = (message, secretKey) => {
+  const buf = Buffer.from(message, 'utf8');
+  const hash = multihash.encode(buf, 'sha3-256');
+  return Buffer.from(tweetnacl.sign(hash, secretKey)).toString('hex');
 };
 
 /**
@@ -150,4 +164,5 @@ module.exports = {
   isInvalidValidPassword,
   createNewPeerInfo,
   checkExistAndDecryptSigningKey,
+  getAndSignHashFromMessage,
 };

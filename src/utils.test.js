@@ -2,13 +2,38 @@ const scrypt = require('scrypt-async');
 const aes = require('aes-js');
 const createHmac = require('create-hmac');
 const crypto = require('crypto');
+const tweetnacl = require('tweetnacl');
+const multihash = require('multihashes');
+
 const {
   encryptValue,
   decryptValue,
   isInvalidValidPassword,
+  getAndSignHashFromMessage,
 } = require('./utils');
 
 describe('utils', () => {
+  test('getAndSignHashFromMessage', () => {
+    // the singing key pair
+    const ed25519KeyPair = tweetnacl.sign.keyPair();
+    // signed the hash
+    const signedHash = getAndSignHashFromMessage(
+      'value to encrypt',
+      ed25519KeyPair.secretKey,
+    );
+
+    const buf = Buffer.from('value to encrypt', 'utf8');
+    const hash = multihash.encode(buf, 'sha3-256');
+    const signedMessage = tweetnacl.sign(hash, ed25519KeyPair.secretKey);
+    //decrypt the signedMessage and check value
+    expect(
+      Buffer.from(tweetnacl.sign.open(signedMessage, ed25519KeyPair.publicKey)),
+    ).toEqual(hash);
+
+    //make sure get the same signedHash with the same input value
+    expect(Buffer.from(signedMessage).toString('hex')).toBe(signedHash);
+  });
+
   test('encrypt', done => {
     // encrypt our test value
     encryptValue('value to encrypt', 'password')
