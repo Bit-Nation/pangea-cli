@@ -5,7 +5,6 @@ const {
   isInvalidValidPassword,
   decryptValue,
   checkExistAndDecryptSigningKey,
-  convertStringToUint8Array,
 } = require('./utils');
 
 const {
@@ -140,14 +139,12 @@ const streamDApp = ({ pw }, signingKeyFile, devMode) =>
         watchAndStreamBundleData(
           devMode,
           { ...signingKey, singingPrivateKey },
-          ({ content }) => {
-            const secretKey = convertStringToUint8Array(
-              singingPrivateKey.toString(),
-            );
-            const signedContent = Buffer.from(
-              tweetnacl.sign(convertStringToUint8Array(content), secretKey),
+          ({ dAppBundle }) => {
+            const secretKey = Buffer.from(singingPrivateKey.toString(), 'hex');
+            const signedDAppBundle = Buffer.from(
+              tweetnacl.sign(Buffer.from(dAppBundle, 'utf8'), secretKey),
             ).toString('hex');
-            console.log({ signedContent }); // TODO: need to process result
+            console.log({ signedDAppBundle }); // TODO: need to process result
           },
         );
       })
@@ -174,9 +171,8 @@ const buildDApp = ({ pw }, signingKeyFile, devMode) =>
           ({ error }) => {
             if (!error) {
               res('wrote dapp build to dapp_build.json');
-            } else {
-              rej(error);
             }
+            rej(error);
           },
         );
       })

@@ -30,7 +30,7 @@ const isInvalidValidPassword = password => {
  * @return {string} hash string
  */
 const hashDappContent = content => {
-  let buff = Buffer.allocUnsafe(0);
+  let buff = Buffer.alloc(0);
 
   const { name = {} } = content;
   // 1.append name into buffer
@@ -182,14 +182,6 @@ const createNewPeerInfo = () =>
     });
   });
 
-/**
- * @desc convert String To Uint8Array
- * @param {string} string
- * @return {Uint8Array}
- */
-const convertStringToUint8Array = string =>
-  new Uint8Array(string.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
-
 module.exports = {
   encryptValue,
   decryptValue,
@@ -197,5 +189,4 @@ module.exports = {
   createNewPeerInfo,
   checkExistAndDecryptSigningKey,
   hashDappContent,
-  convertStringToUint8Array,
 };

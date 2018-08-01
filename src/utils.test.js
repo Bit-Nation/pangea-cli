@@ -2,6 +2,8 @@ const scrypt = require('scrypt-async');
 const aes = require('aes-js');
 const createHmac = require('create-hmac');
 const crypto = require('crypto');
+const tweetnacl = require('tweetnacl');
+
 const {
   encryptValue,
   decryptValue,
@@ -18,9 +20,13 @@ const dAppContent = {
   code: 'get:function(){return"Text"}',
 };
 
+// hash string that computed from dAppContent
+const hexStringHashDapp =
+  '1678646544417070204e616d65656e2d757344417070204e616d6516a6e448c2e1e209ab559232a98e3d0c25030e05158c22710c207fec1f2e4fbf6765743a66756e6374696f6e28297b72657475726e2254657874227d89504e470d0a1a0a0000000d494844520000007d0000007d08060000008f302e312e30';
+
 describe('utils', () => {
   test('hashDappContent', () => {
-    const hashDapp = hashDappContent(dAppContent);
+    const hashDapp = Buffer.from(hexStringHashDapp, 'hex');
     // expect fail if dapp content change value 1 of the its fields
     expect(hashDappContent({ ...dAppContent, engine: '0.0.1' })).not.toEqual(
       hashDapp,
@@ -43,7 +49,7 @@ describe('utils', () => {
     expect(
       hashDappContent({
         ...dAppContent,
-        image: 'not the same with dAppContent',
+        used_signing_key: 'not the same with dAppContent',
       }),
     ).not.toEqual(hashDapp);
 
@@ -235,5 +241,19 @@ describe('utils', () => {
     expectations.map(({ password, expectation }) => {
       expectation(isInvalidValidPassword(password));
     });
+  });
+
+  test('should return same message when sign and open sign', () => {
+    const keyPair = tweetnacl.sign.keyPair();
+    const stringTest = 'string to be signed';
+    const signedStringTest = tweetnacl.sign(
+      Buffer.from(stringTest, 'utf8'),
+      keyPair.secretKey,
+    );
+    expect(
+      Buffer.from(
+        tweetnacl.sign.open(signedStringTest, keyPair.publicKey),
+      ).toString(),
+    ).toBe(stringTest);
   });
 });
