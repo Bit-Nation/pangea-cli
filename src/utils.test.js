@@ -2,6 +2,8 @@ const scrypt = require('scrypt-async');
 const aes = require('aes-js');
 const createHmac = require('create-hmac');
 const crypto = require('crypto');
+const tweetnacl = require('tweetnacl');
+
 const {
   encryptValue,
   decryptValue,
@@ -30,6 +32,7 @@ describe('utils', () => {
     };
 
     expect(expectedHash).toBe(hashDAppContent(sampleBuild).toString('hex'));
+
   });
 
   test('encrypt', done => {
@@ -202,5 +205,19 @@ describe('utils', () => {
     expectations.map(({ password, expectation }) => {
       expectation(isInvalidValidPassword(password));
     });
+  });
+
+  test('should return same message when sign and open sign', () => {
+    const keyPair = tweetnacl.sign.keyPair();
+    const stringTest = 'string to be signed';
+    const signedStringTest = tweetnacl.sign(
+      Buffer.from(stringTest, 'utf8'),
+      keyPair.secretKey,
+    );
+    expect(
+      Buffer.from(
+        tweetnacl.sign.open(signedStringTest, keyPair.publicKey),
+      ).toString(),
+    ).toBe(stringTest);
   });
 });

@@ -183,14 +183,6 @@ const createNewPeerInfo = () =>
     });
   });
 
-/**
- * @desc convert String To Uint8Array
- * @param {string} string
- * @return {Uint8Array}
- */
-const convertStringToUint8Array = string =>
-  new Uint8Array(string.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
-
 module.exports = {
   encryptValue,
   decryptValue,
@@ -198,5 +190,4 @@ module.exports = {
   createNewPeerInfo,
   checkExistAndDecryptSigningKey,
   hashDAppContent,
-  convertStringToUint8Array,
 };

@@ -3,7 +3,7 @@ const webpack = require('webpack');
 const fs = require('fs');
 const tweetnacl = require('tweetnacl');
 
-const { hashDappContent, convertStringToUint8Array } = require('./utils');
+const { hashDappContent } = require('./utils');
 
 const DEFAULT_LANGUAGE_CODE = 'en-us';
 const PACKAGE_PATH = './package.json';
@@ -164,8 +164,9 @@ const watchBundleChanges = (devMode, signingKey, callback, isForceClose) => {
       //retrieve the output of the compilation
       const data = stats.compilation.assets['index.js'].source();
 
-      const secretKey = convertStringToUint8Array(
+      const secretKey = Buffer.from(
         signingKey.singingPrivateKey.toString(),
+        'hex',
       );
 
       // update content data
