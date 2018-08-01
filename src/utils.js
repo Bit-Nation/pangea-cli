@@ -1,12 +1,11 @@
 const scrypt = require('scrypt-async');
-const crypto = require('crypto');
 const aes = require('aes-js');
 const createHmac = require('create-hmac');
 const PeerId = require('peer-id');
 const PeerInfo = require('peer-info');
 const fs = require('fs');
-
 const multihash = require('multihashes');
+const crypto = require('crypto');
 
 const SCRYPT_R = 8;
 const SCRYPT_P = 1;
@@ -25,39 +24,41 @@ const isInvalidValidPassword = password => {
 };
 
 /**
- * @desc get hash from dApp
- * @param {object} content
- * @return {string} hash string
+ * @desc compute the hash of a DApp build
+ * @param {object} dAppBuild
+ * @return {string} multi hash as hex encoded string
  */
-const hashDappContent = content => {
-  let buff = Buffer.allocUnsafe(0);
+const hashDAppContent = dAppBuild => {
+  const { name = {} } = dAppBuild;
 
-  const { name = {} } = content;
-  // 1.append name into buffer
-  //sort keys in increasing order
-  const nameLanguagesKey = Object.keys(name).sort();
-  for (let index = 0; index < nameLanguagesKey.length; index++) {
-    //append language code
-    const key = nameLanguagesKey[index];
-    buff = Buffer.concat([buff, Buffer.from(key, 'utf8')]);
-    //append name
-    const nameStr = name[key];
-    buff = Buffer.concat([buff, Buffer.from(nameStr, 'utf8')]);
-  }
+  const hash = crypto.createHash('sha256');
 
-  // 2.append used signing  key into buffer
-  buff = Buffer.concat([buff, Buffer.from(content.used_signing_key, 'hex')]);
+  // 1. write name into hash
+  Object.keys(name)
+    .sort()
+    .map(key => {
+      //append language code
+      hash.update(key, 'ascii');
+      //append name
+      hash.update(name[key], 'ascii');
+    });
 
-  // 3.append code into buffer
-  buff = Buffer.concat([buff, Buffer.from(content.code, 'utf8')]);
+  // 2. write used signing key into hash
+  hash.update(dAppBuild.used_signing_key, 'hex');
 
-  // 4.append image into buffer
-  buff = Buffer.concat([buff, Buffer.from(content.image, 'base64')]);
+  // 3. write code into hash
+  hash.update(dAppBuild.code, 'ascii');
 
-  // 5.append engine into buffer
-  buff = Buffer.concat([buff, Buffer.from(content.engine, 'utf8')]);
+  // 4. write image into hash
+  hash.update(dAppBuild.image, 'base64');
 
-  return multihash.encode(buff, 'sha3-256');
+  // 5. write engine into hash
+  hash.update(dAppBuild.engine, 'ascii');
+
+  // 6. write version as string into hash
+  hash.update(dAppBuild.version.toString(), 'ascii');
+
+  return multihash.encode(hash.digest(), 'sha2-256');
 };
 
 /**
@@ -196,6 +197,6 @@ module.exports = {
   isInvalidValidPassword,
   createNewPeerInfo,
   checkExistAndDecryptSigningKey,
-  hashDappContent,
+  hashDAppContent,
   convertStringToUint8Array,
 };

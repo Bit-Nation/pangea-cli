@@ -6,63 +6,30 @@ const {
   encryptValue,
   decryptValue,
   isInvalidValidPassword,
-  hashDappContent,
+  hashDAppContent,
 } = require('./utils');
 
-const dAppContent = {
-  name: { 'en-us': 'DApp Name', de: 'DApp Name' },
-  engine: '0.1.0',
-  image: 'iVBORw0KGgoAAAANSUhEUgAAAH0AAAB9CAYAAACPg',
-  used_signing_key:
-    '16a6e448c2e1e209ab559232a98e3d0c25030e05158c22710c207fec1f2e4fbf',
-  code: 'get:function(){return"Text"}',
-};
-
 describe('utils', () => {
-  test('hashDappContent', () => {
-    const hashDapp = hashDappContent(dAppContent);
-    // expect fail if dapp content change value 1 of the its fields
-    expect(hashDappContent({ ...dAppContent, engine: '0.0.1' })).not.toEqual(
-      hashDapp,
-    );
+  test('hashDAppContent', () => {
+    // we got this hash from our spec test vector
+    const expectedHash =
+      '122045b810a58b64b3d35e46a30c8b1d80dccb8f04142acb4f6fe86e01792316a3e4';
 
-    expect(
-      hashDappContent({
-        ...dAppContent,
-        name: { de: 'not the same with dAppContent' },
-      }),
-    ).not.toEqual(hashDapp);
+    // the data is from the spec test vector
+    const sampleBuild = {
+      name: {
+        'en-us': 'send and request money',
+        'de': 'sende und fordere geld an',
+      },
+      used_signing_key:
+        '110c3ff292fb8ebf0084a9fc1e8c06418ab1c2cbd1058d87e78aa0fcdcbf5791',
+      code: 'var wallet = "0x930aa9a843266bdb02847168d571e7913907dd84"',
+      image: 'aGk=',
+      engine: '1.2.3',
+      version: 1,
+    };
 
-    expect(
-      hashDappContent({
-        ...dAppContent,
-        image: 'not the same with dAppContent',
-      }),
-    ).not.toEqual(hashDapp);
-
-    expect(
-      hashDappContent({
-        ...dAppContent,
-        image: 'not the same with dAppContent',
-      }),
-    ).not.toEqual(hashDapp);
-
-    expect(
-      hashDappContent({
-        ...dAppContent,
-        code: 'not the same with dAppContent',
-      }),
-    ).not.toEqual(hashDapp);
-
-    // expect same hash value if the content is the same
-    expect(hashDappContent(dAppContent)).toEqual(hashDapp);
-
-    expect(
-      hashDappContent({
-        ...dAppContent,
-        name: { de: 'DApp Name', 'en-us': 'DApp Name' },
-      }),
-    ).toEqual(hashDapp);
+    expect(expectedHash).toBe(hashDAppContent(sampleBuild).toString('hex'));
   });
 
   test('encrypt', done => {
