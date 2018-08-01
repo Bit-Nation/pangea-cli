@@ -12,7 +12,7 @@ const {
 } = require('./utils');
 
 describe('utils', () => {
-  test('hashDAppContent', () => {
+  test('hashDAppContent', done => {
     // we got this hash from our spec test vector
     const expectedHash =
       '122045b810a58b64b3d35e46a30c8b1d80dccb8f04142acb4f6fe86e01792316a3e4';
@@ -21,7 +21,7 @@ describe('utils', () => {
     const sampleBuild = {
       name: {
         'en-us': 'send and request money',
-        'de': 'sende und fordere geld an',
+        de: 'sende und fordere geld an',
       },
       used_signing_key:
         '110c3ff292fb8ebf0084a9fc1e8c06418ab1c2cbd1058d87e78aa0fcdcbf5791',
@@ -31,8 +31,12 @@ describe('utils', () => {
       version: 1,
     };
 
-    expect(expectedHash).toBe(hashDAppContent(sampleBuild).toString('hex'));
-
+    hashDAppContent(sampleBuild)
+      .then(hash => {
+        expect(expectedHash).toBe(hash);
+        done();
+      })
+      .catch(done.fail);
   });
 
   test('encrypt', done => {
