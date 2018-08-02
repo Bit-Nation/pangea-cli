@@ -1,6 +1,9 @@
 const path = require('path');
 const webpack = require('webpack');
 const fs = require('fs');
+const tweetnacl = require('tweetnacl');
+
+const { hashDAppContent } = require('./utils');
 
 const DEFAULT_LANGUAGE_CODE = 'en-us';
 const PACKAGE_PATH = './package.json';
@@ -83,41 +86,47 @@ const getDappMetaData = () => {
  * @param {function} callback return data
  */
 const watchAndStreamBundleData = (devMode, signingKey, callback) => {
-  watchBundleChanges(devMode, signingKey, content => {
-    if (callback) {
-      //callback return data
-      callback({ content });
-    }
-  });
+  watchBundleChanges(devMode, signingKey, callback);
 };
 
 /**
  * @desc Write bundle file
  * @param {bool} devMode return true when arg is --dev
  * @param {object} signingKey
- * @param {function} callback
+ * @param {function} cb
  */
-const watchAndWriteBundleFile = (devMode, signingKey, callback) => {
+const watchAndWriteBundleFile = (devMode, signingKey, cb) => {
   watchBundleChanges(
     devMode,
     signingKey,
-    content => {
-      const { name = {} } = JSON.parse(content);
+    (err, dAppBuild) => {
+      if (err) {
+        return cb(err);
+      }
+
+      const { name = {} } = dAppBuild;
       const nameString = Object.values(name)[0]; //Get  first item in the name object
       const cleanNameString = nameString
         ? nameString.replace(/([^a-z0-9]+)/gi, '-')
         : ''; // Strip off illegal characters
-      //write content to file
-      const outputPath = path.join(
-        process.cwd(),
-        `build/${cleanNameString}-${signingKey.name}-${
-          signingKey.public_key
-        }.json`,
+
+      //write dAppBuild to file
+      const fileName = `${cleanNameString}-${signingKey.name}-${
+        signingKey.public_key
+      }.json`;
+      const outputPath = path.join(process.cwd(), fileName);
+      ensureDirectoryExists(fileName);
+      fs.writeFile(
+        outputPath,
+        JSON.stringify(dAppBuild, null, 2),
+        'utf8',
+        error => {
+          if (error) {
+            return cb(error);
+          }
+          cb(null, fileName);
+        },
       );
-      ensureDirectoryExists(outputPath);
-      fs.writeFile(outputPath, content, 'utf8', error => {
-        callback({ error });
-      });
     },
     true, //stop watching
   );
@@ -154,27 +163,52 @@ const watchBundleChanges = (devMode, signingKey, callback, isForceClose) => {
     },
     (err, stats) => {
       if (err) {
-        console.log(err);
-        return;
+        return callback(err);
       }
-      //retrieve the output of the compilation
-      const data = stats.compilation.assets['index.js'].source();
 
-      // update content data
+      //retrieve the output of the compilation
+      const dAppCode = stats.compilation.assets['index.js'].source();
+
+      // dApp
       const dAppMetaData = getDappMetaData();
-      const content = JSON.stringify({
+      const dAppContent = {
         ...dAppMetaData,
         used_signing_key: signingKey.public_key,
-        code: data,
-      });
+        code: dAppCode,
+        version: 1,
+      };
 
-      // Print watch/build result here...
-      if (isForceClose || !devMode) {
-        compilerWatch.close();
-      }
-      if (callback) {
-        callback(content);
-      }
+      // hash the dApp content
+      hashDAppContent(dAppContent)
+        .then(dAppContentHash => {
+          // parse secret key
+          const secretKey = Buffer.from(
+            signingKey.singingPrivateKey.toString(),
+            'hex',
+          );
+
+          const signedHash = Buffer.from(
+            tweetnacl.sign(
+              new Uint8Array(Buffer.from(dAppContentHash, `hex`)),
+              new Uint8Array(secretKey),
+            ),
+          ).toString('hex');
+
+          // Print watch/build result here...
+          if (isForceClose) {
+            compilerWatch.close();
+          }
+
+          if (callback) {
+            callback(null, {
+              ...dAppMetaData,
+              used_signing_key: signingKey.public_key,
+              code: dAppCode,
+              signature: signedHash,
+            });
+          }
+        })
+        .catch(callback);
     },
   );
 };

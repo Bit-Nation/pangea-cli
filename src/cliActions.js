@@ -1,16 +1,17 @@
 const tweetnacl = require('tweetnacl');
 const fs = require('fs');
+const Pushable = require('pull-pushable');
 const {
   encryptValue,
   isInvalidValidPassword,
   decryptValue,
   checkExistAndDecryptSigningKey,
 } = require('./utils');
-
 const {
   watchAndStreamBundleData,
   watchAndWriteBundleFile,
 } = require('./webpack');
+const { dAppStreamFactory } = require('./protocols');
 
 const SIGNING_KEY_VERSION = 1;
 
@@ -136,9 +137,28 @@ const streamDApp = ({ pw }, signingKeyFile, devMode) =>
         // read signing key
         const rawSigningKey = fs.readFileSync(signingKeyFile, 'utf8');
         const signingKey = JSON.parse(rawSigningKey);
-        watchAndStreamBundleData(devMode, signingKey, ({ content }) => {
-          console.log({ content, singingPrivateKey, signingKey }); // TODO: need to process result
-        });
+
+        const pushable = Pushable();
+
+        // create DApp stream node
+        dAppStreamFactory(pushable)
+          .then(() => {
+            watchAndStreamBundleData(
+              devMode,
+              { ...signingKey, singingPrivateKey },
+              (err, dAppBundle) => {
+                if (err) {
+                  return rej(err);
+                }
+                console.log('send code to pangea');
+                pushable.push(
+                  Buffer.from(JSON.stringify(dAppBundle)).toString('base64'),
+                );
+                pushable.push('\n');
+              },
+            );
+          })
+          .catch(rej);
       })
       .catch(rej);
   });
@@ -153,17 +173,20 @@ const streamDApp = ({ pw }, signingKeyFile, devMode) =>
 const buildDApp = ({ pw }, signingKeyFile, devMode) =>
   new Promise((res, rej) => {
     checkExistAndDecryptSigningKey({ pw }, signingKeyFile)
-      .then(() => {
+      .then(singingPrivateKey => {
         // read signing key
         const rawSigningKey = fs.readFileSync(signingKeyFile, 'utf8');
         const signingKey = JSON.parse(rawSigningKey);
-        watchAndWriteBundleFile(devMode, signingKey, ({ error }) => {
-          if (!error) {
-            res('wrote dapp build to dapp_build.json');
-          } else {
-            rej(error);
-          }
-        });
+        watchAndWriteBundleFile(
+          devMode,
+          { ...signingKey, singingPrivateKey },
+          (error, fileName) => {
+            if (error) {
+              return rej(error);
+            }
+            res(`wrote build to: "${fileName}"`);
+          },
+        );
       })
       .catch(rej);
   });

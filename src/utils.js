@@ -1,10 +1,11 @@
 const scrypt = require('scrypt-async');
-const crypto = require('crypto');
 const aes = require('aes-js');
 const createHmac = require('create-hmac');
 const PeerId = require('peer-id');
 const PeerInfo = require('peer-info');
 const fs = require('fs');
+const multihash = require('multihashes');
+const crypto = require('crypto');
 
 const SCRYPT_R = 8;
 const SCRYPT_P = 1;
@@ -21,6 +22,69 @@ const isInvalidValidPassword = password => {
     return new Error('password must have at least 8 characters');
   }
 };
+
+/**
+ * @desc compute the hash of a DApp build
+ * @param {object} dAppBuild
+ * @return {Promise} resolve with multi hash (hex) or reject with error
+ */
+const hashDAppContent = dAppBuild =>
+  new Promise((res, rej) => {
+    const { name = {} } = dAppBuild;
+
+    const hash = crypto.createHash('sha256');
+
+    // 1. write name into hash
+    if (name.length === 0) {
+      return rej(new Error(`invalid amount of name translations`));
+    }
+    Object.keys(name)
+      .sort()
+      .map(key => {
+        //append language code
+        hash.update(key, 'ascii');
+        //append name
+        hash.update(name[key], 'ascii');
+      });
+
+    // 2. write used signing key into hash
+    if (Buffer.from(dAppBuild.used_signing_key, 'hex').length !== 32) {
+      return rej(
+        new Error(`invalid used signing key - must be exactly 32 bytes long`),
+      );
+    }
+    hash.update(dAppBuild.used_signing_key, 'hex');
+
+    // 3. write code into hash
+    if (typeof dAppBuild.code !== `string`) {
+      return rej(new Error(`invalid code - must be of type string`));
+    }
+    hash.update(dAppBuild.code, 'ascii');
+
+    // 4. write image into hash
+    if (typeof dAppBuild.image !== `string`) {
+      return rej(new Error(`invalid image - must be of type string`));
+    }
+    hash.update(dAppBuild.image, 'base64');
+
+    // 5. write engine into hash
+    if (typeof dAppBuild.engine !== `string`) {
+      return rej(new Error(`invalid engine - must be of type string`));
+    }
+    hash.update(dAppBuild.engine, 'ascii');
+
+    // 6. write version as string into hash
+    if (typeof dAppBuild.version !== `number` || dAppBuild.version < 1) {
+      return rej(
+        new Error(
+          `invalid version - must be of type number and be greater than 1`,
+        ),
+      );
+    }
+    hash.update(dAppBuild.version.toString(), 'ascii');
+
+    res(multihash.encode(hash.digest(), 'sha2-256').toString(`hex`));
+  });
 
 /**
  * @desc Encrypt a value with the given password
@@ -150,4 +214,5 @@ module.exports = {
   isInvalidValidPassword,
   createNewPeerInfo,
   checkExistAndDecryptSigningKey,
+  hashDAppContent,
 };

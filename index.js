@@ -46,9 +46,7 @@ program
   .description('Stream DApp to pangea')
   .action((signingKeyFile, cmd) => {
     prompt(streamDAppSchema)
-      .then(answers => {
-        return streamDApp(answers, signingKeyFile, cmd.dev);
-      })
+      .then(answers => streamDApp(answers, signingKeyFile, cmd.dev))
       .then(console.log)
       .catch(err => console.error(err.message));
   });
@@ -59,9 +57,7 @@ program
   .description('Bundle DApp')
   .action((signingKeyFile, cmd) => {
     prompt(buildDAppSchema)
-      .then(answers => {
-        return buildDApp(answers, signingKeyFile, cmd.dev);
-      })
+      .then(answers => buildDApp(answers, signingKeyFile, cmd.dev))
       .then(console.log)
       .catch(err => console.error(err.message));
   });
@@ -69,11 +65,7 @@ program
 program
   .command('pangea:log')
   .description('Create node that receives logs from panthalassa')
-  .action(() => {
-    loggerProtocolFactory()
-      .then()
-      .catch(console.log);
-  });
+  .action(() => loggerProtocolFactory().catch(console.log));
 
 program.parse(process.argv);
 if (!process.argv.slice(2).length) {
