@@ -46,9 +46,7 @@ program
   .description('Stream DApp to pangea')
   .action((signingKeyFile, cmd) => {
     prompt(streamDAppSchema)
-      .then(answers => {
-        return streamDApp(answers, signingKeyFile, cmd.dev);
-      })
+      .then(answers => streamDApp(answers, signingKeyFile, cmd.dev))
       .then(console.log)
       .catch(err => console.error(err.message));
   });

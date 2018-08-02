@@ -139,12 +139,11 @@ const streamDApp = ({ pw }, signingKeyFile, devMode) =>
         watchAndStreamBundleData(
           devMode,
           { ...signingKey, singingPrivateKey },
-          ({ dAppBundle }) => {
-            const secretKey = Buffer.from(singingPrivateKey.toString(), 'hex');
-            const signedDAppBundle = Buffer.from(
-              tweetnacl.sign(Buffer.from(dAppBundle, 'utf8'), secretKey),
-            ).toString('hex');
-            console.log({ signedDAppBundle }); // TODO: need to process result
+          (err, dAppBundle) => {
+            if (err) {
+              return rej(err);
+            }
+            console.log(dAppBundle);
           },
         );
       })

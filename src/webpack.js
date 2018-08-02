@@ -86,12 +86,7 @@ const getDappMetaData = () => {
  * @param {function} callback return data
  */
 const watchAndStreamBundleData = (devMode, signingKey, callback) => {
-  watchBundleChanges(devMode, signingKey, content => {
-    if (callback) {
-      //callback return data
-      callback({ content });
-    }
-  });
+  watchBundleChanges(devMode, signingKey, callback);
 };
 
 /**
@@ -200,9 +195,10 @@ const watchBundleChanges = (devMode, signingKey, callback, isForceClose) => {
           ).toString('hex');
 
           // Print watch/build result here...
-          if (isForceClose || !devMode) {
+          if (isForceClose) {
             compilerWatch.close();
           }
+
           if (callback) {
             callback(null, {
               ...dAppMetaData,
