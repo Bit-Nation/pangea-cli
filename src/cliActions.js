@@ -168,11 +168,11 @@ const buildDApp = ({ pw }, signingKeyFile, devMode) =>
         watchAndWriteBundleFile(
           devMode,
           { ...signingKey, singingPrivateKey },
-          ({ error }) => {
-            if (!error) {
-              res('wrote dapp build to dapp_build.json');
+          (error, fileName) => {
+            if (error) {
+              return rej(error);
             }
-            rej(error);
+            res(`wrote build to: "${fileName}"`);
           },
         );
       })
