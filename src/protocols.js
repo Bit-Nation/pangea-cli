@@ -47,6 +47,50 @@ const loggerProtocolFactory = () =>
       .catch(rej);
   });
 
+/**
+ * @desc create a libp2p node for DApp streaming
+ * @param {Object} pushable instance of pull-pushable
+ * @return {Promise<any>}
+ */
+const dAppStreamFactory = pushable =>
+  new Promise((res, rej) => {
+    createNewPeerInfo()
+      .then(peerInfo => {
+        // add address
+        peerInfo.multiaddrs.add('/ip4/' + require('ip').address() + '/tcp/0');
+
+        const node = new Node({ peerInfo: peerInfo });
+
+        node.start(err => {
+          if (err) {
+            return rej(err);
+          }
+
+          // Display address
+          peerInfo.multiaddrs.forEach(addr => {
+            qrcode.generate(addr.toString());
+            console.log(`----- Address: ${addr.toString()} -----`);
+          });
+
+          node.handle('/dapp-development/0.0.0', (protocol, conn) => {
+            pull(pushable, conn);
+
+            pull(
+              conn,
+              pull.map(data => {
+                console.log(data);
+                return data.toString('utf8').replace('\n', '');
+              }),
+            );
+          });
+
+          res();
+        });
+      })
+      .catch(rej);
+  });
+
 module.exports = {
   loggerProtocolFactory,
+  dAppStreamFactory,
 };
