@@ -192,7 +192,7 @@ const watchBundleChanges = (devMode, signingKey, callback, isForceClose) => {
               new Uint8Array(Buffer.from(dAppContentHash, `hex`)),
               new Uint8Array(secretKey),
             ),
-          ).toString('hex');
+          );
 
           // Print watch/build result here...
           if (isForceClose) {
@@ -204,7 +204,7 @@ const watchBundleChanges = (devMode, signingKey, callback, isForceClose) => {
               ...dAppMetaData,
               used_signing_key: signingKey.public_key,
               code: dAppCode,
-              signature: signedHash,
+              signature: signedHash.slice(0, 64).toString('hex'),
             });
           }
         })
