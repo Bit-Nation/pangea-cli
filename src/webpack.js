@@ -200,12 +200,7 @@ const watchBundleChanges = (devMode, signingKey, callback, isForceClose) => {
           }
 
           if (callback) {
-            callback(null, {
-              ...dAppMetaData,
-              used_signing_key: signingKey.public_key,
-              code: dAppCode,
-              signature: signedHash.slice(0, 64).toString('hex'),
-            });
+            callback(null, dAppContent);
           }
         })
         .catch(callback);
