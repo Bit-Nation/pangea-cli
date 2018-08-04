@@ -200,6 +200,8 @@ const watchBundleChanges = (devMode, signingKey, callback, isForceClose) => {
           }
 
           if (callback) {
+            // the version must be written as a string
+            dAppContent.version = dAppContent.version.toString();
             callback(null, dAppContent);
           }
         })
