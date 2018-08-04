@@ -42,9 +42,9 @@ const hashDAppContent = dAppBuild =>
       .sort()
       .map(key => {
         //append language code
-        hash.update(key, 'ascii');
+        hash.update(key, 'utf8');
         //append name
-        hash.update(name[key], 'ascii');
+        hash.update(name[key], 'utf8');
       });
 
     // 2. write used signing key into hash
@@ -59,7 +59,7 @@ const hashDAppContent = dAppBuild =>
     if (typeof dAppBuild.code !== `string`) {
       return rej(new Error(`invalid code - must be of type string`));
     }
-    hash.update(dAppBuild.code, 'ascii');
+    hash.update(dAppBuild.code, 'utf8');
 
     // 4. write image into hash
     if (typeof dAppBuild.image !== `string`) {
@@ -71,7 +71,7 @@ const hashDAppContent = dAppBuild =>
     if (typeof dAppBuild.engine !== `string`) {
       return rej(new Error(`invalid engine - must be of type string`));
     }
-    hash.update(dAppBuild.engine, 'ascii');
+    hash.update(dAppBuild.engine, 'utf8');
 
     // 6. write version as string into hash
     if (typeof dAppBuild.version !== `number` || dAppBuild.version < 1) {
@@ -81,7 +81,7 @@ const hashDAppContent = dAppBuild =>
         ),
       );
     }
-    hash.update(dAppBuild.version.toString(), 'ascii');
+    hash.update(dAppBuild.version.toString(), 'utf8');
 
     res(multihash.encode(hash.digest(), 'sha2-256').toString(`hex`));
   });
