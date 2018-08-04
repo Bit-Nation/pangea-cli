@@ -202,7 +202,7 @@ const watchBundleChanges = (devMode, signingKey, callback, isForceClose) => {
           if (callback) {
             // the version must be written as a string
             dAppContent.version = dAppContent.version.toString();
-            dAppContent.signature = signedHash.toString("hex");
+            dAppContent.signature = signedHash.slice(0, 64).toString('hex');
             callback(null, dAppContent);
           }
         })
