@@ -75,10 +75,8 @@ const dAppStreamFactory = pushable =>
 
             pull(
               conn,
-              pull.map(data => {
-                console.log(data);
-                return data.toString('utf8').replace('\n', '');
-              }),
+              pull.map(data => data.toString('utf8').replace('\n', '')),
+              pull.drain(console.log),
             );
           });
 
