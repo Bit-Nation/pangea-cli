@@ -24,22 +24,11 @@ Install the package with `npm install pangea-cli -g`.
 
 ## Usage
 
-__creating new singing keys__
-1. run `pangea-cli sk:new` (sk = singing key)
-2. enter all requested data
-
-Signing keys are stored encrypted.
-Make sure to remember the password.
-
-__change the password of a signing key__
-1. run `pangea-cli sk:pw <signing-key-file>` to change the password of the singing key.
-2. enter all requested data
-
-When you change the password of the signing key,
-the original key will be kept for security reasons.
-You can delete it if you would like to.
-
-## API
+- `pangea sk:new` create new signing key
+- `pangea sk:pw` change password of encrypted signing key
+- `dapp:stream` use this for active development - it will stream the DApp from your local computer to the device. Make sure to run this command in a project made with the DApp template. 
+- `dapp:build` use this to bundle your code and sign it
+- `pangea:log` used for debugging, will stream logs from panthalassa mostly used by the core team and not for DApp development
 
 ## Maintainers
 
